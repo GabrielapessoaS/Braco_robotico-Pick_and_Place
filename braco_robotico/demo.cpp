@@ -19,34 +19,26 @@ int main (int argc, char **argv){
 
   
   robo.setup();
-  // Inserindo posicao inicial
-  robo.move_percent(35, base);
-  //robo.move_percent(10, eixo_y);
-  //robo.move_percent(10, eixo_x);
-  //robo.move_percent(50, garra);
 
   sleep(5);
 
-  for(int i = 20; i < 80; i++){
-   // robo.move_increment(10, base);
-    robo.move_percent(i, eixo_y);
-    //robo.move_increment(10, eixo_y);
-    //robo.move_increment(10, garra);
-    usleep(200000);
-  }
+  for (int i=0 ; i< 4 ; i++){
+    
+    robo.move_percent(35, base);
+    robo.move_percent(50, eixo_y);
+    robo.move_percent(50, eixo_x);
+    robo.move_percent(70, garra);
+    for(int j=10 ; j<90; j++){
+      robo.move_percent(j,i);
+      usleep(200000);
 
-  sleep(5);
-
-  for(int i = 80; i < 20; i--){
-    //robo.move_decrement(10, base);
-    robo.move_percent(i, eixo_y);
-    //robo.move_decrement(10, eixo_y);
-    //robo.move_decrement(10, garra);
-    usleep(200000);
-  }
-
-  sleep(5);
+    }
   
+  }
+
+
+  sleep(5);
+
   cout << "Demonstracao concluida\n";
   
   robo.close();

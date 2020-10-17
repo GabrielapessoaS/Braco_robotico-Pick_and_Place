@@ -9,10 +9,10 @@
 #include <unistd.h>
 
 
-#define base 0
-#define eixo_x 2
-#define eixo_y 3
-#define garra 4
+#define base 3
+#define eixo_x 1
+#define eixo_y 2
+#define garra 0
 namespace N{
 
   class robot {
