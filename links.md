@@ -7,3 +7,4 @@
 - [Tese do cara que fez o que a gente quer fazer] (https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.633.7888&rep=rep1&type=pdf)
 - [Transformada Hough] (http://www.inf.ufsc.br/~aldo.vw/visao/2000/Hough/index.html)
 - [A mina e o japa da Cornell q fizeram algo bem parecido (tem todo o codigo fonte!)] (https://courses.ece.cornell.edu/ece5990/ECE5725_Spring2019_Projects/mkl53_sk2282/index.html)
+https://hal-mines-paristech.archives-ouvertes.fr/hal-02276236/document
