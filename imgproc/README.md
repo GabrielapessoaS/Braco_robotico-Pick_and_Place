@@ -1,8 +1,12 @@
 # Modo de compilar
 Para configurar o Makefile, utilize o CMake nesta pasta, realizando o build na pasta "build":
+
 `cd imgproc`
+
 `mkdir build`
+
 `cmake -B build -S .`
+
 Em seguida execute `make` para compilar.
 
 Serão gerados 3 executaveis:
