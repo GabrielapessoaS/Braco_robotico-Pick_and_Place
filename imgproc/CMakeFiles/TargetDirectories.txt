@@ -1,0 +1,6 @@
+/home/gabriel/opencv/CMakeFiles/rebuild_cache.dir
+/home/gabriel/opencv/CMakeFiles/colorsep.dir
+/home/gabriel/opencv/CMakeFiles/hues.dir
+/home/gabriel/opencv/CMakeFiles/edit_cache.dir
+/home/gabriel/opencv/CMakeFiles/motion.dir
+/home/gabriel/opencv/CMakeFiles/videocap.dir
