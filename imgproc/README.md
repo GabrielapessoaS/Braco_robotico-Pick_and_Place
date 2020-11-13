@@ -1,5 +1,8 @@
 # Modo de compilar
-Para configurar o Makefile, utilize o CMake nesta pasta, realizando o build nela mesma:`cmake -B . -S .`. Em seguida execute `make` para compilar.
+Para configurar o Makefile, utilize o CMake nesta pasta, realizando o build na pasta "build":
+`cd imgproc`
+`cmake -B build -S .`
+Em seguida execute `make` para compilar.
 
 Serão gerados 3 executaveis:
 1. `motion` é o algoritmo que detecta o movimento. Ele identifica o plano de fundo do vídeo vindo da camera do sistema, e então consegue detectar objetos que se sobreponham a esse plano de fundo. Se você ficar parado em frente à camera por alguns segundos você vira o plano de fundo. Com esse algoritmo podemos identificar os *blobs* - que no caso são os objetos - que são armazenados como *contours*. Uma vez identificados os *blobs* podemos calcular o centros de cada um deles, utilizando o primeiro e segundo momentos. Depois de calcular os centros, mostramo-los na imagem como pequenos circulos azuis.
