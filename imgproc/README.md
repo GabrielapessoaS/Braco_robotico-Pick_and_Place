@@ -18,7 +18,7 @@ Execute como
 Onde
 
 * `id_camera` é o número identificador da câmera. Se tiver só uma câmera ligada na Rasp, então é 0.
-* `sensibilidade` especifica a área mínima (em pixels) para que se considere um objeto. Quanto menor a sensibilidade, maior o número de iterações para evitar ruído e identificação errônea de objetos.
+* `sensibilidade` especifica a área mínima (em pixels) para que se considere um objeto. Quanto menor a sensibilidade, é sugerido aumentar o número de iterações para evitar ruído e identificação errônea de objetos.
 * `iteracoes` especifica quantas iteracoes realizar no treinamento("calibragem") para reconhecer o plano de fundo. Quanto maior o número de iterações até 1000, maior a segurança da identificação de objetos, a não ser que a sensibilidade esteja muito baixa. 100 iterações gastam em torno de uns 10 segundos em um Intel i5.
 
 Exemplo com valores razoaveis:
