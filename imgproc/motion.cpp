@@ -10,7 +10,8 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 	if(argc < 4) {
-		cerr << "Missing parameters\n";
+		cerr << "Uso: " << argv[0] << " id_camera sensibilidade iteracoes\n";
+		cerr << "\n\tPara informacoes no significado dos parametros, consulte o README.md\n";
 		return -1;
 	}
 	vector<vector<cv::Point>> contours;
