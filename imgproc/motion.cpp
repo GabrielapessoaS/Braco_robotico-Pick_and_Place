@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <iostream>
+#include <numeric>
+#include <numbers>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/core.hpp>
@@ -7,6 +9,43 @@
 #include <opencv2/videoio.hpp>
 
 using namespace std;
+
+vector<cv::Point> findObjects(cv::Mat & frame, vector<vector<cv::Point>> & contours, cv::Point ref, int minarea) {
+	vector<cv::Rect> boundRect(contours.size());
+	vector<vector<cv::Point>> contours_poly(contours.size());
+	vector<cv::Moments> m(contours.size());
+	vector<cv::Point> centers(contours.size());
+
+	cv::RNG rng(12345);
+	char name[20];
+	int valid_contours=0;
+
+	for(int i=0; i<contours.size(); i++) {
+		if(cv::contourArea(contours[i]) < minarea)
+			continue;
+		valid_contours++;
+		cv::putText(frame, "Objetos reconhecidos", cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.75, cv::Scalar(0, 0, 255), 2);
+		cv::approxPolyDP(contours[i], contours_poly[i], 3, true);
+
+		boundRect[i] = cv::boundingRect(contours_poly[i]);
+		cv::Scalar color = cv::Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+		cv::rectangle(frame, boundRect[i].tl(), boundRect[i].br(), color, 2);
+
+		m[i] = cv::moments(contours[i], true);
+		centers[i] = cv::Point(m[i].m10/m[i].m00, m[i].m01/m[i].m00);
+
+		cv::circle(frame, centers[i], 3, cv::Scalar(128,0,0), -1);
+
+		sprintf(name, "%d:(%d,%d)", valid_contours, centers[i].x, centers[i].y);
+		cv::putText(frame, string(name), centers[i], cv::FONT_HERSHEY_SIMPLEX, 0.50, cv::Scalar(10, 0, 255), 2);
+		cv::line(frame, ref, centers[i], cv::Scalar(0,200,0));
+		cout << i << ": r = " << sqrt(pow(centers[i].x-ref.x, 2) + pow(centers[i].y-ref.y, 2));
+	        cout << " theta = " << 180*atan(((double) centers[i].y)/centers[i].x)/3.14159265<< endl;
+
+	}
+	return centers;
+}
+
 
 int main(int argc, char* argv[]) {
 	if(argc < 4) {
@@ -32,7 +71,7 @@ int main(int argc, char* argv[]) {
 		capture >> frame;
 		if(frame.empty()) {
 			cerr << "empty frame\n";
-			return 0;	
+			return 0;
 		}
 		pBackSub->apply(frame, fgMask);
 		cv::imshow("Plano de fundo", fgMask);
@@ -51,47 +90,21 @@ int main(int argc, char* argv[]) {
 		if(cv::waitKey(5) >= 0) {
 			break;
 		}
-			
+
 		if(frame.empty()) {
 			cerr << "empty frame\n";
 			return -1; //break;
 		}
 	}
-	cv::destroyWindow("what");
+	//cv::destroyWindow("what");
 	pBackSub->apply(frame, fgMask);
 	cv::imshow("Objetos", fgMask);
 
-	cv::RNG rng(12345);
-	cv::findContours(fgMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0,0));
+	cv::findContours(fgMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE, cv::Point(0,0));
 
-	vector<cv::Rect> boundRect(contours.size());
-	vector<vector<cv::Point>> contours_poly(contours.size());
-	vector<cv::Moments> m(contours.size());
-	vector<cv::Point> centers(contours.size());
+	vector<cv::Point> centers = findObjects(frame, contours, cv::Point(frame.rows-1, frame.cols), atoi(argv[2]));
 
-	char name[20];
-	int valid_contours=0;
-	for(int i=0; i<contours.size(); i++) {
-		if(cv::contourArea(contours[i]) < atoi(argv[2]))
-			continue;
-		valid_contours++;
-		cv::putText(frame, "Objetos reconhecidos", cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.75, cv::Scalar(0, 0, 255), 2);
-		cv::approxPolyDP(contours[i], contours_poly[i], 3, true);
-
-		boundRect[i] = cv::boundingRect(contours_poly[i]);
-		cv::Scalar color = cv::Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-		cv::rectangle(frame, boundRect[i].tl(), boundRect[i].br(), color, 2);
-
-		m[i] = cv::moments(contours[i], true);
-		centers[i] = cv::Point(m[i].m10/m[i].m00, m[i].m01/m[i].m00);
-
-		cv::circle(frame, centers[i], 3, cv::Scalar(128,0,0), -1);
-
-		sprintf(name, "%d:(%d,%d)", valid_contours, centers[i].x, centers[i].y);
-		cv::putText(frame, string(name), centers[i], cv::FONT_HERSHEY_SIMPLEX, 0.50, cv::Scalar(10, 0, 255), 2);
-
-	}
-	cout << valid_contours << " objetos reconhecidos.\n";
+	cout << centers.size() << " objetos reconhecidos.\n";
 
 	cv::imshow("Stream", frame);
 	keyboard = cv::waitKey(0);
