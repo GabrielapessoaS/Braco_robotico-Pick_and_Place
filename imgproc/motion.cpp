@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <iostream>
 #include <numeric>
-#include <numbers>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/core.hpp>
@@ -95,9 +94,9 @@ int main(int argc, char* argv[]) {
 			cerr << "empty frame\n";
 			return -1; //break;
 		}
+		pBackSub->apply(frame, fgMask);
 	}
 	//cv::destroyWindow("what");
-	pBackSub->apply(frame, fgMask);
 	cv::imshow("Objetos", fgMask);
 
 	cv::findContours(fgMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE, cv::Point(0,0));
