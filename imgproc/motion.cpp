@@ -60,11 +60,14 @@ int main(int argc, char* argv[]) {
 
 	cv::VideoCapture capture(atoi(argv[1]));
 
+	cv::Size s;
+
 	if(!capture.isOpened()) {
 		cerr << "unable to open camera\n";
 		return -1;
 	}
 	cv::Mat frame, fgMask;
+
 	cout << "Reconhecendo plano de fundo...\n";
 	for(int i=0; i<atoi(argv[3]); i++) {
 		capture >> frame;
@@ -77,6 +80,9 @@ int main(int argc, char* argv[]) {
 		if(cv::waitKey(5) >= 0)
 			break;
 	}
+	s = frame.size();
+	cv::Point ref((s.width-1)/2, s.height-1);
+	cout << "Dimensoes: " << ref.x << " " << ref.y;
 	cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
 	cv::imshow("Plano de fundo", fgMask);
 	int keyboard = cv::waitKey(0);
@@ -94,14 +100,15 @@ int main(int argc, char* argv[]) {
 			cerr << "empty frame\n";
 			return -1; //break;
 		}
-		pBackSub->apply(frame, fgMask);
 	}
 	//cv::destroyWindow("what");
+	pBackSub->apply(frame, fgMask);
+	cv::namedWindow("Objetos", cv::WINDOW_NORMAL);
 	cv::imshow("Objetos", fgMask);
 
 	cv::findContours(fgMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE, cv::Point(0,0));
 
-	vector<cv::Point> centers = findObjects(frame, contours, cv::Point(frame.rows-1, frame.cols), atoi(argv[2]));
+	vector<cv::Point> centers = findObjects(frame, contours, ref, atoi(argv[2]));
 
 	cout << centers.size() << " objetos reconhecidos.\n";
 
