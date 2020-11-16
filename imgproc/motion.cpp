@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <numeric>
+#include <thread>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/core.hpp>
@@ -9,15 +10,79 @@
 
 using namespace std;
 
-vector<cv::Point> findObjects(cv::Mat & frame, vector<vector<cv::Point>> & contours, cv::Point ref, int minarea) {
-	vector<cv::Rect> boundRect(contours.size());
-	vector<vector<cv::Point>> contours_poly(contours.size());
-	vector<cv::Moments> m(contours.size());
-	vector<cv::Point> centers(contours.size());
+vector<cv::Point> centers;
+
+
+void findObjects(int cam, int minarea, int bgIter, int objIter) {
+	vector<vector<cv::Point>> contours;
+	vector<cv::Vec4i> hierarchy;
+	cv::VideoCapture capture(cam);
+	//cv::Point ref(refx, refy);
+	
+	cv::Ptr<cv::BackgroundSubtractorMOG2> pBackSub;
+	pBackSub = cv::createBackgroundSubtractorMOG2(100, 16, false);
+	
+	cv::Mat frame, fgMask;
 
 	cv::RNG rng(12345);
 	char name[20];
 	int valid_contours=0;
+
+	if(!capture.isOpened()) {
+		cerr << "unable to open camera\n";
+		return;
+	}
+	capture >> frame;
+
+	cv::Size s = frame.size();;
+	cv::Point ref((s.width-1)/2, s.height-1);
+	cout << "Dimensoes: " << ref.x << " " << ref.y << endl;
+	
+	cout << "Reconhecendo plano de fundo...\n";
+	for(int i=0; i<bgIter; i++) {
+		capture >> frame;
+		if(frame.empty()) {
+			cerr << "empty frame\n";
+			return;
+		}
+		pBackSub->apply(frame, fgMask);
+		cv::imshow("Plano de fundo", fgMask);
+		if(cv::waitKey(5) >= 0)
+			break;
+	}
+	
+	cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
+	cv::imshow("Plano de fundo", fgMask);
+	int keyboard = cv::waitKey(0);
+	if(keyboard == 'q')
+		return;
+	cv::destroyWindow("Plano de fundo");
+	for(int i=0; i<objIter; i++) {
+		capture >> frame;
+		cv::imshow("what", frame);
+		if(cv::waitKey(5) >= 0) {
+			break;
+		}
+
+		if(frame.empty()) {
+			cerr << "empty frame\n";
+			return; //break;
+		}
+	}
+	cv::destroyWindow("what");
+	pBackSub->apply(frame, fgMask);
+	cv::namedWindow("Objetos", cv::WINDOW_NORMAL);
+	cv::imshow("Objetos", fgMask);
+	if(cv::waitKey(0) == 'q')
+		return;
+
+	cv::findContours(fgMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE, cv::Point(0,0));
+
+	vector<cv::Rect> boundRect(contours.size());
+	vector<vector<cv::Point>> contours_poly(contours.size());
+	vector<cv::Moments> m(contours.size());
+	centers.resize(contours.size(), cv::Point(0,0));
+
 
 	for(int i=0; i<contours.size(); i++) {
 		if(cv::contourArea(contours[i]) < minarea)
@@ -42,7 +107,10 @@ vector<cv::Point> findObjects(cv::Mat & frame, vector<vector<cv::Point>> & conto
 	        cout << " theta = " << 180*atan(((double) centers[i].y)/centers[i].x)/3.14159265<< endl;
 
 	}
-	return centers;
+	cv::imshow("Reconhecidos", frame);
+	if(cv::waitKey(0) == 'q')
+		return;
+	cout << centers.size() << " objetos reconhecidos.\n";
 }
 
 
@@ -50,72 +118,14 @@ int main(int argc, char* argv[]) {
 	if(argc < 4) {
 		cerr << "Uso: " << argv[0] << " id_camera sensibilidade iteracoes1 iteracoes2\n";
 		cerr << "\n\tPara informacoes no significado dos parametros, consulte o README.md\n";
+		cerr << "\tid_camera: numero do arquivo da camera no /dev (e.g. /dev/video0 --> id_camera = 0)\n";
 		return -1;
 	}
-	vector<vector<cv::Point>> contours;
-	vector<cv::Vec4i> hierarchy;
-	
-	cv::Ptr<cv::BackgroundSubtractorMOG2> pBackSub;
-	pBackSub = cv::createBackgroundSubtractorMOG2(100, 16, false);
 
-	cv::VideoCapture capture(atoi(argv[1]));
 
-	cv::Size s;
+	thread objectRecognition(findObjects, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
 
-	if(!capture.isOpened()) {
-		cerr << "unable to open camera\n";
-		return -1;
-	}
-	cv::Mat frame, fgMask;
-
-	cout << "Reconhecendo plano de fundo...\n";
-	for(int i=0; i<atoi(argv[3]); i++) {
-		capture >> frame;
-		if(frame.empty()) {
-			cerr << "empty frame\n";
-			return 0;
-		}
-		pBackSub->apply(frame, fgMask);
-		cv::imshow("Plano de fundo", fgMask);
-		if(cv::waitKey(5) >= 0)
-			break;
-	}
-	s = frame.size();
-	cv::Point ref((s.width-1)/2, s.height-1);
-	cout << "Dimensoes: " << ref.x << " " << ref.y;
-	cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
-	cv::imshow("Plano de fundo", fgMask);
-	int keyboard = cv::waitKey(0);
-	if(keyboard == 'q')
-		return -1;
-	cv::destroyWindow("Plano de fundo");
-	for(int i=0; i<atoi(argv[4]); i++) {
-		capture >> frame;
-		cv::imshow("what", frame);
-		if(cv::waitKey(5) >= 0) {
-			break;
-		}
-
-		if(frame.empty()) {
-			cerr << "empty frame\n";
-			return -1; //break;
-		}
-	}
-	//cv::destroyWindow("what");
-	pBackSub->apply(frame, fgMask);
-	cv::namedWindow("Objetos", cv::WINDOW_NORMAL);
-	cv::imshow("Objetos", fgMask);
-
-	cv::findContours(fgMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE, cv::Point(0,0));
-
-	vector<cv::Point> centers = findObjects(frame, contours, ref, atoi(argv[2]));
-
-	cout << centers.size() << " objetos reconhecidos.\n";
-
-	cv::imshow("Stream", frame);
-	keyboard = cv::waitKey(0);
-	if(keyboard == 'q' || keyboard == 27)
-		return -1;
+	objectRecognition.join();
 
 	return 0;
 }
