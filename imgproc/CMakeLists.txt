@@ -4,6 +4,8 @@ PROJECT(tests)
 
 find_package( OpenCV REQUIRED )
 
+SET(OpenCV_DIR ~/opencv/)
+
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 MACRO(add_object name)
