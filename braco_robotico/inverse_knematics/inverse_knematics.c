@@ -19,6 +19,7 @@
 int run=1;
 int i=0,j=0,k=0;
 int dg_i=90, dg_j=90, dg_k=90;
+int X, Y;
 
 void stop(int signum){
   run = 0;
@@ -49,60 +50,6 @@ int degree_to_us(int *degree, int *state){
 
 }
 
-void read_button(int *i, int *dg, int *state, int pin){
-    if(gpioRead(BUT_INC)==0){
-        time_sleep(0.01);
-        if(gpioRead(BUT_INC)>0)
-            return;
-
-        *dg += 5;
-        if (*dg>155 && *state ==2)
-            *dg=155;
-        else if(*state ==0 && *dg>180)
-            *dg = 180;
-        else if(*state == 1 && *dg > 90)
-          *dg=90;
-        *i = degree_to_us(dg, state);
-        fprintf(stderr, "Valor do grau=%d\n", *dg);
-        fprintf(stderr, "Valor do pulso=%d\n", *i);
-
-        }
-    else if(gpioRead(BUT_DEC) ==0){
-        time_sleep(0.01);
-        if(gpioRead(BUT_DEC)>0)
-            return;
-
-        *dg -= 5;
-        if (*dg<0 && *state < 2)
-            *dg=0;
-        else if (*dg<10 && *state ==2)
-          *dg=10;
-        *i = degree_to_us(dg, state);
-
-        //fprintf(stderr, "Valor do pulso=%d\n", gpioGetServoPulsewidth(pin));
-        fprintf(stderr, "Valor do grau=%d\n", *dg);
-        fprintf(stderr, "Valor do pulso=%d\n", *i);
-    }
-
-    else if(gpioRead(BUT_SEL) ==0){
-        time_sleep(0.01);
-        if(gpioRead(BUT_SEL)>0)
-            return;        
-        *state += 1;
-        if (*state>2)
-            *state=0;
-
-
-
-        fprintf(stderr, "Valor do estado=%d\n", *state);
-    }
-
-            
-    time_sleep(0.2);
-
-    return;
-
-}
 
 
 void ease_func(){
@@ -183,7 +130,7 @@ void ease_func(){
 
 void inverse_knematics(){
   
-}<++>
+}
 
 
 
@@ -218,22 +165,12 @@ int main(int argc, char **argv){
 
     while(run){
 
-      
-        
-        switch(servo_sel){
-            case(0):
-                read_button(&i, &dg_i, &servo_sel, SERVO_BASE);
-            break;
 
-            case(1):
-                read_button(&j, &dg_j, &servo_sel, SERVO_X);
-            break;
-
-            case(2):
-                read_button(&k, &dg_k, &servo_sel, SERVO_Y);
-        }
-
-
+      fprintf(stdout, "Insira os valores X e Y");
+      fprintf(stdout, "X: ");
+      scanf("%d", &X);
+      fprintf(stdout, "Y: ");
+      scanf("%d" &Y);
 
     }
     gpioTerminate();
