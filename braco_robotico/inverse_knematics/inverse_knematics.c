@@ -16,19 +16,22 @@
 
 #define SPEED 2.0
 
+#define a1 8.5
+#define a2 13.0
+
 int run=1;
 int i=0,j=0,k=0;
-int dg_i=90, dg_j=90, dg_k=90;
-int X, Y;
+double dg_i=90, dg_j=90, dg_k=90;
+double X, Y;
 
 void stop(int signum){
   run = 0;
 }
 
 
-int degree_to_us(int *degree, int *state){
+int degree_to_us(double *degree, int state){
 
-  switch(*state){
+  switch(state){
 
     case 0:
       return ((int)(11.11*(*degree)+ 500.0));
@@ -44,9 +47,34 @@ int degree_to_us(int *degree, int *state){
       break;
 
     default:
-      *state= 0;
+      state= 0;
   }
-  return 0.0;
+  return 0;
+
+}
+
+int rad_to_us(double *rad, int state){
+  double degree = 180.0*(*rad)/3.14159;
+
+  switch(state){
+
+    case 0:
+      return ((int)(11.11*(degree)+ 500.0));
+      break;
+
+    case 1:
+      k=((int)(-15.55*(dg_k- degree) + 1900.0));
+      return ((int)(-11.11*(degree) + 1500.0));
+      break;
+
+    case 2:
+      return ((int)(-15.55*(degree - dg_j) + 1900.0));
+      break;
+
+    default:
+      state= 0;
+  }
+  return 0;
 
 }
 
@@ -128,7 +156,21 @@ void ease_func(){
 }
 
 
-void inverse_knematics(){
+void inverse_knematics(double x, double y, double *theta1, double *theta2){
+
+  *theta2 = (acos((x*x + y*y - a1*a1 - a2*a2)/(2*a1*a2)));
+  *theta1 = atan((y*(a1+a2*cos(*theta2))+ x*a2*sin(*theta2))/x*(a1 + a2*cos(*theta2))-a2*y*sin(*theta2));
+
+  *theta1 = 180.0*(*theta1)/3.14159;
+  *theta2 = 180.0*(*theta2)/3.14159;
+  
+  (*theta1<0)? (*theta1= -(*theta1)) : (*theta1 = *theta1);
+
+  fprintf(stdout, "theta1 = %lf\n", (*theta1));
+  fprintf(stdout, "theta2 = %lf\n", (*theta2));
+
+  j = degree_to_us(theta1, 1);
+  k = degree_to_us(theta2, 2);
   
 }
 
@@ -154,11 +196,11 @@ int main(int argc, char **argv){
     //gpioSetPWMfrequency(SERVO_X, 50);
     //gpioSetPWMfrequency(SERVO_Y, 50);
     //
-    gpioServo(SERVO_BASE, degree_to_us(&dg_i, &servo_sel));
+    gpioServo(SERVO_BASE, degree_to_us(&dg_i, servo_sel));
     servo_sel+=1;
-    gpioServo(SERVO_X, degree_to_us(&dg_j, &servo_sel));
+    gpioServo(SERVO_X, degree_to_us(&dg_j, servo_sel));
     servo_sel+=1;
-    gpioServo(SERVO_Y, degree_to_us(&dg_k, &servo_sel));
+    gpioServo(SERVO_Y, degree_to_us(&dg_k, servo_sel));
     gpioSetTimerFunc(0, 10, ease_func);
     
     servo_sel=0;
@@ -166,11 +208,13 @@ int main(int argc, char **argv){
     while(run){
 
 
-      fprintf(stdout, "Insira os valores X e Y");
+      fprintf(stdout, "Insira os valores X e Y\n");
       fprintf(stdout, "X: ");
-      scanf("%d", &X);
+      scanf("%lf", &X);
       fprintf(stdout, "Y: ");
-      scanf("%d" &Y);
+      scanf("%lf", &Y);
+
+      inverse_knematics(X, Y, &dg_i, &dg_k ); 
 
     }
     gpioTerminate();
