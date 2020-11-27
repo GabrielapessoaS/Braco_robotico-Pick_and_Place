@@ -12,12 +12,12 @@
 #define SERVO_BASE 19
 #define SERVO_Y 13
 #define SERVO_X 12
-//#define BUT_BOBINA 6 
+//#define BOBINA 6 
 
 #define SPEED 2.0
 
-#define a1 8.5
-#define a2 13.0
+double a1 = 8.5;
+double  a2=13.0;
 
 int run=1;
 int i=0,j=0,k=0;
@@ -170,8 +170,8 @@ void inverse_knematics(double x, double y, double *theta1, double *theta2){
 
   fprintf(stdout, "algoritmo secundario\n");
 
-  *theta2 = -cos((x*x + y*y - a1*a1 - a2*a2)/(2*a1*a2));
-  *theta1 = atan(y/x) + atan((a2*sin(*theta2)/(a1+a2*cos(*theta2))));
+  *theta2 = acos((x*x + y*y - a1*a1 - a2*a2)/(2*a1*a2));
+  *theta1 = atan(y/x) + atan((a2*sin(*theta2))/(a1+a2*cos(*theta2)));
 
   fprintf(stdout, "theta1 = %lf\n", (*theta1*180.0/3.14159));
   fprintf(stdout, "theta2 = %lf\n", (*theta2*180.0/3.14159));
@@ -211,7 +211,7 @@ int main(int argc, char **argv){
     gpioServo(SERVO_X, degree_to_us(&dg_j, servo_sel));
     servo_sel+=1;
     gpioServo(SERVO_Y, degree_to_us(&dg_k, servo_sel));
-    //gpioSetTimerFunc(0, 10, ease_func);
+    gpioSetTimerFunc(0, 10, ease_func);
     
     servo_sel=0;
 
