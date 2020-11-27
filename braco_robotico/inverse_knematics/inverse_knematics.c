@@ -16,18 +16,22 @@
 
 #define SPEED 2.0
 
+#define a1 8.5
+#define a2 13.0
+
 int run=1;
 int i=0,j=0,k=0;
-int dg_i=90, dg_j=90, dg_k=90;
+double dg_i=90, dg_j=90, dg_k=90;
+double X, Y;
 
 void stop(int signum){
   run = 0;
 }
 
 
-int degree_to_us(int *degree, int *state){
+int degree_to_us(double *degree, int state){
 
-  switch(*state){
+  switch(state){
 
     case 0:
       return ((int)(11.11*(*degree)+ 500.0));
@@ -43,66 +47,37 @@ int degree_to_us(int *degree, int *state){
       break;
 
     default:
-      *state= 0;
+      state= 0;
   }
-  return 0.0;
+  return 0;
 
 }
 
-void read_button(int *i, int *dg, int *state, int pin){
-    if(gpioRead(BUT_INC)==0){
-        time_sleep(0.01);
-        if(gpioRead(BUT_INC)>0)
-            return;
+int rad_to_us(double *rad, int state){
+  double degree = 180.0*(*rad)/3.14159;
 
-        *dg += 5;
-        if (*dg>155 && *state ==2)
-            *dg=155;
-        else if(*state ==0 && *dg>180)
-            *dg = 180;
-        else if(*state == 1 && *dg > 90)
-          *dg=90;
-        *i = degree_to_us(dg, state);
-        fprintf(stderr, "Valor do grau=%d\n", *dg);
-        fprintf(stderr, "Valor do pulso=%d\n", *i);
+  switch(state){
 
-        }
-    else if(gpioRead(BUT_DEC) ==0){
-        time_sleep(0.01);
-        if(gpioRead(BUT_DEC)>0)
-            return;
+    case 0:
+      return ((int)(11.11*(degree)+ 500.0));
+      break;
 
-        *dg -= 5;
-        if (*dg<0 && *state < 2)
-            *dg=0;
-        else if (*dg<10 && *state ==2)
-          *dg=10;
-        *i = degree_to_us(dg, state);
+    case 1:
+      k=((int)(-15.55*(dg_k- degree) + 1900.0));
+      return ((int)(-11.11*(degree) + 1500.0));
+      break;
 
-        //fprintf(stderr, "Valor do pulso=%d\n", gpioGetServoPulsewidth(pin));
-        fprintf(stderr, "Valor do grau=%d\n", *dg);
-        fprintf(stderr, "Valor do pulso=%d\n", *i);
-    }
+    case 2:
+      return ((int)(-15.55*(degree - dg_j) + 1900.0));
+      break;
 
-    else if(gpioRead(BUT_SEL) ==0){
-        time_sleep(0.01);
-        if(gpioRead(BUT_SEL)>0)
-            return;        
-        *state += 1;
-        if (*state>2)
-            *state=0;
-
-
-
-        fprintf(stderr, "Valor do estado=%d\n", *state);
-    }
-
-            
-    time_sleep(0.2);
-
-    return;
+    default:
+      state= 0;
+  }
+  return 0;
 
 }
+
 
 
 void ease_func(){
@@ -181,9 +156,23 @@ void ease_func(){
 }
 
 
-void inverse_knematics(){
+void inverse_knematics(double x, double y, double *theta1, double *theta2){
+
+  *theta2 = (acos((x*x + y*y - a1*a1 - a2*a2)/(2*a1*a2)));
+  *theta1 = atan((y*(a1+a2*cos(*theta2))+ x*a2*sin(*theta2))/x*(a1 + a2*cos(*theta2))-a2*y*sin(*theta2));
+
+  *theta1 = 180.0*(*theta1)/3.14159;
+  *theta2 = 180.0*(*theta2)/3.14159;
   
-}<++>
+  (*theta1<0)? (*theta1= -(*theta1)) : (*theta1 = *theta1);
+
+  fprintf(stdout, "theta1 = %lf\n", (*theta1));
+  fprintf(stdout, "theta2 = %lf\n", (*theta2));
+
+  j = degree_to_us(theta1, 1);
+  k = degree_to_us(theta2, 2);
+  
+}
 
 
 
@@ -207,33 +196,25 @@ int main(int argc, char **argv){
     //gpioSetPWMfrequency(SERVO_X, 50);
     //gpioSetPWMfrequency(SERVO_Y, 50);
     //
-    gpioServo(SERVO_BASE, degree_to_us(&dg_i, &servo_sel));
+    gpioServo(SERVO_BASE, degree_to_us(&dg_i, servo_sel));
     servo_sel+=1;
-    gpioServo(SERVO_X, degree_to_us(&dg_j, &servo_sel));
+    gpioServo(SERVO_X, degree_to_us(&dg_j, servo_sel));
     servo_sel+=1;
-    gpioServo(SERVO_Y, degree_to_us(&dg_k, &servo_sel));
+    gpioServo(SERVO_Y, degree_to_us(&dg_k, servo_sel));
     gpioSetTimerFunc(0, 10, ease_func);
     
     servo_sel=0;
 
     while(run){
 
-      
-        
-        switch(servo_sel){
-            case(0):
-                read_button(&i, &dg_i, &servo_sel, SERVO_BASE);
-            break;
 
-            case(1):
-                read_button(&j, &dg_j, &servo_sel, SERVO_X);
-            break;
+      fprintf(stdout, "Insira os valores X e Y\n");
+      fprintf(stdout, "X: ");
+      scanf("%lf", &X);
+      fprintf(stdout, "Y: ");
+      scanf("%lf", &Y);
 
-            case(2):
-                read_button(&k, &dg_k, &servo_sel, SERVO_Y);
-        }
-
-
+      inverse_knematics(X, Y, &dg_i, &dg_k ); 
 
     }
     gpioTerminate();

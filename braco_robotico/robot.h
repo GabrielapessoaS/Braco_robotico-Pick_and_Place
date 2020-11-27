@@ -9,9 +9,9 @@
 #include <unistd.h>
 
 
-#define base 3
-#define eixo_x 1
-#define eixo_y 2
+#define base 12
+#define eixo_x 13
+#define eixo_y 19
 #define garra 0
 namespace N{
 
