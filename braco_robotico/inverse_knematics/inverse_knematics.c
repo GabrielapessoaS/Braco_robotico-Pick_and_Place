@@ -158,16 +158,26 @@ void ease_func(){
 
 void inverse_knematics(double x, double y, double *theta1, double *theta2){
 
-  *theta2 = (acos((x*x + y*y - a1*a1 - a2*a2)/(2*a1*a2)));
-  *theta1 = atan((y*(a1+a2*cos(*theta2))+ x*a2*sin(*theta2))/x*(a1 + a2*cos(*theta2))-a2*y*sin(*theta2));
+  //double q2, q1;
+ // *theta2 = (acos((x*x + y*y - a1*a1 - a2*a2)/(2*a1*a2)));
+  //*theta1 = atan((y*(a1+a2*cos(*theta2))+ x*a2*sin(*theta2))/x*(a1 + a2*cos(*theta2))-a2*y*sin(*theta2));
+
+  
+  //fprintf(stdout, "algoritmo inicial");
+  //fprintf(stdout, "theta1 = %lf\n", (*theta1));
+  //fprintf(stdout, "theta2 = %lf\n", (*theta2));
+  //(*theta1<0)? (*theta1= -(*theta1)) : (*theta1 = *theta1);
+
+  fprintf(stdout, "algoritmo secundario\n");
+
+  *theta2 = -cos((x*x + y*y - a1*a1 - a2*a2)/(2*a1*a2));
+  *theta1 = atan(y/x) + atan((a2*sin(*theta2)/(a1+a2*cos(*theta2))));
+
+  fprintf(stdout, "theta1 = %lf\n", (*theta1*180.0/3.14159));
+  fprintf(stdout, "theta2 = %lf\n", (*theta2*180.0/3.14159));
 
   *theta1 = 180.0*(*theta1)/3.14159;
   *theta2 = 180.0*(*theta2)/3.14159;
-  
-  (*theta1<0)? (*theta1= -(*theta1)) : (*theta1 = *theta1);
-
-  fprintf(stdout, "theta1 = %lf\n", (*theta1));
-  fprintf(stdout, "theta2 = %lf\n", (*theta2));
 
   j = degree_to_us(theta1, 1);
   k = degree_to_us(theta2, 2);
@@ -201,7 +211,7 @@ int main(int argc, char **argv){
     gpioServo(SERVO_X, degree_to_us(&dg_j, servo_sel));
     servo_sel+=1;
     gpioServo(SERVO_Y, degree_to_us(&dg_k, servo_sel));
-    gpioSetTimerFunc(0, 10, ease_func);
+    //gpioSetTimerFunc(0, 10, ease_func);
     
     servo_sel=0;
 
