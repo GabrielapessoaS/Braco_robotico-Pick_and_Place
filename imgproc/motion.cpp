@@ -16,9 +16,63 @@ using namespace std;
 
 vector<cv::Point2d> centerscm;	// Vetor que contem os centros dos objetos
 bool centers_available = false;	// Flag para indicar diponibilidade de centros no vetor
-double proportion = -1;
+double proportion = -1;		// Coeficiente de proporcao de centimetros/pixel
 
 int usbase = 0, usx = 0, usy = 0;
+int lock = 0;
+
+void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter);
+void smoothMove();
+int servoControl();
+
+int main(int argc, char* argv[]) {
+	if(argc < 4) {
+		cerr << "Uso: " << argv[0] << " id_camera sensibilidade iteracoes1 iteracoes2\n";
+		cerr << "\n\tPara informacoes no significado dos parametros, consulte o README.md\n";
+		cerr << "\tid_camera: numero do arquivo da camera no /dev (e.g. /dev/video0 --> id_camera = 0)\n";
+		return -1;
+	}
+
+	double dg_x=90, dg_y=0, dg_base=90;	// Posicao inicial dos servos (graus)
+	double X, Y;				// Posicao instantanea do end effector
+
+	usbase = degree_to_us(dg_base, SERVO_BASE);
+	usx = degree_to_us(dg_x, SERVO_X);
+	usy = degree_to_us(dg_y, SERVO_Y);
+
+	printf("Inicializando GPIOs dos servos...\n");
+	if(gpioInitialise() < 0) {
+		cout << "Erro ao inicializar os GPIOs.\n";
+		exit(1);
+	}
+
+	//gpioSetMode(BOBINA, PI_OUTPUT);
+	//gpioWrite(BOBINA, 1);
+
+	gpioServoBound(SERVO_BASE, degree_to_us(dg_base, 0));
+	gpioServoBound(SERVO_X, degree_to_us(dg_x, 1));
+	gpioServoBound(SERVO_Y, degree_to_us(dg_y, 2));
+
+	cout << "Servos inicializados.\n";
+
+	cout << "\t** Iniciando etapa de calibragem **\n\nSiga as orientações\n\n";
+
+	// Calibragem
+	findObjects(true, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	cout << "\n\n\t** Calibragem finalizada. Iniciando etapa \
+		 principal de reconhecimento de objetos. **\n\n";
+	// Thread de suavizacao de movimentos dos servomotores
+	thread armServos(smoothMove);
+	// Thread de processamento de imagens
+	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+
+
+	objectRecognition.join();
+
+	gpioTerminate();
+
+	return 0;
+}
 
 
 void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) {
@@ -74,6 +128,7 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 	cv::destroyWindow("Plano de fundo");
 	// FIM DO RECONHECIMENTO DE PLANO DE FUNDO //
 	
+	// Loop de pick-n-place
 	do {
 		for(int i=0; i<objIter; i++) {
 			capture >> frame;
@@ -149,6 +204,9 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		}
 		cout << centers.size() << " objetos reconhecidos, sendo " << valid_contours << " validos\n";
 		cv::destroyWindow("Reconhecidos");
+		// Reconhecimento finalizado
+		// Etapa de movimentacao dos objetos
+		cout << "Iniciando etapa de movimentação de objetos...\n";
 
 		if(servoControl() > 0) {
 			cout << "Todos objetos movimentados com sucesso.\n";
@@ -171,6 +229,13 @@ void smoothMove() {
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_X);  
 	  pulse_y = gpioGetServoPulsewidth(SERVO_Y);
+
+	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_y == usy) ) {
+		  cout << "Atingido ponto do objeto.\n";
+		  usleep(100000);
+		  lock = 0;
+	  }
+
 	  if( pulse_base < usbase )
 		  gpioServoBound(SERVO_BASE, pulse_base + SPEED);
 	  else if( pulse_base > usbase)
@@ -191,56 +256,10 @@ void smoothMove() {
 int servoControl() {
 	if(!centers_available) return;
 	for(int i=0; i<centerscm.size(); i++) {
-		inverse_kinematics(centerscm[i].x, centerscm[i].y);
-		object_done.lock();	// Utiliza o mutex para esperar a thread de suavizacao e posicionamento terminar
+		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usy);
+		lock = 1;
+		cout << "Resgatando objeto...\n";
+		while(lock) {};
 		cout << "Objeto " << i << " resgatado.\n";
-		object_done.unlock();	// Uma vez terminado, segue a vida
 	}
-}
-
-
-int main(int argc, char* argv[]) {
-	if(argc < 4) {
-		cerr << "Uso: " << argv[0] << " id_camera sensibilidade iteracoes1 iteracoes2\n";
-		cerr << "\n\tPara informacoes no significado dos parametros, consulte o README.md\n";
-		cerr << "\tid_camera: numero do arquivo da camera no /dev (e.g. /dev/video0 --> id_camera = 0)\n";
-		return -1;
-	}
-
-	double dg_x=90, dg_y=0, dg_base=90;	// Posicao inicial dos servos (graus)
-	double X, Y;	// Posicao instantanea do end effector
-
-	usbase = degree_to_us(dg_base, SERVO_BASE);
-	usx = degree_to_us(dg_x, SERVO_X);
-	usy = degree_to_us(dg_y, SERVO_Y);
-
-	printf("Inicializando GPIOs dos servos...\n");
-	if(gpioInitialise() < 0)
-		exit(1);
-
-	//gpioSetSignalFunc(SIGINT, stop); // Signal handler de CTRL-C iria conflitar com o sinal de CTRL-C do OpenCV
-
-	//gpioSetMode(BOBINA, PI_OUTPUT);
-	//gpioWrite(BOBINA, 1);
-
-	gpioServoBound(SERVO_BASE, degree_to_us(dg_base, 0));
-	gpioServoBound(SERVO_X, degree_to_us(dg_x, 1));
-	gpioServoBound(SERVO_Y, degree_to_us(dg_y, 2));
-
-	gpioSetTimerFunc(0, 10, ease_func);
-
-	gpioTerminate();
-
-	cout << "Servos inicializados.\n";
-
-	cout << "\t** Iniciando etapa de calibragem **\n\nSiga as orientações\n\n";
-	findObjects(true, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
-	cout << "\n\n\t** Calibragem finalizada. Iniciando etapa principal de reconhecimento de objetos. **\n\n";
-	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
-
-	thread armServos(smoothMove);
-
-	objectRecognition.join();
-
-	return 0;
 }

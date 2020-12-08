@@ -33,10 +33,7 @@ int gpioServoBound(int servo, int us);
 
 int degree_to_us(double degree, int servo);
 
-void ease_func();
-
-void inverse_kinematics(double x, double y, double theta1, double theta2);
-
+void inverse_kinematics(double x, double y, int usb, int usx, int usy);
 
 #endif
 
