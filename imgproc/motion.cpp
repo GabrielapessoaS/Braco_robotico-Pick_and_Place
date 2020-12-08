@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "inv_kinematics/inv_kinematics.h"
 #include <unistd.h>
 #include <iostream>
 #include <numeric>
@@ -19,7 +20,7 @@ bool centers_available = false;	// Flag para indicar diponibilidade de centros n
 double proportion = -1;		// Coeficiente de proporcao de centimetros/pixel
 
 int usbase = 0, usx = 0, usy = 0;
-int lock = 0;
+int lock_motion = 0;
 
 void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter);
 void smoothMove();
@@ -210,6 +211,7 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 
 		if(servoControl() > 0) {
 			cout << "Todos objetos movimentados com sucesso.\n";
+		}
 
 		cv::destroyWindow("Objetos");
 		centers.clear();
@@ -233,7 +235,7 @@ void smoothMove() {
 	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_y == usy) ) {
 		  cout << "Atingido ponto do objeto.\n";
 		  usleep(100000);
-		  lock = 0;
+		  lock_motion = 0;
 	  }
 
 	  if( pulse_base < usbase )
@@ -257,9 +259,9 @@ int servoControl() {
 	if(!centers_available) return;
 	for(int i=0; i<centerscm.size(); i++) {
 		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usy);
-		lock = 1;
+		lock_motion = 1;
 		cout << "Resgatando objeto...\n";
-		while(lock) {};
+		while(lock_motion) {};
 		cout << "Objeto " << i << " resgatado.\n";
 	}
 }

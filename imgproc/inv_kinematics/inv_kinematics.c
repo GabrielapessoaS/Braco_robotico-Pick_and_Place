@@ -32,6 +32,8 @@
  *
  * @returns: -1 caso servo nao estiver listado, 0 caso contrario
  */
+#include "inv_kinematics.h"
+
 int gpioServoBound(int servo, int us) {
 	switch(servo) {
 		case SERVO_BASE:
