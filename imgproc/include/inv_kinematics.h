@@ -23,8 +23,8 @@
 
 #define SPEED 1
 
-#define a1 8.0
-#define a2 8.0
+const int a1 = 8.0;
+const int a2 = 8.0;
 
 #define MAX_LEN	(a1+a2)
 #define MIN_LEN 1
@@ -33,7 +33,7 @@ int gpioServoBound(int servo, int us);
 
 int degree_to_us(double degree, int servo);
 
-void inverse_kinematics(double x, double y, int usb, int usx, int usy);
+void inverse_kinematics(double x, double y, int *usb, int *usx, int *usy);
 
 #endif
 

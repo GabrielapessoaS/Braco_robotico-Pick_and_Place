@@ -1,0 +1,8 @@
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/install/local.dir
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/inv_kinematics.dir
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/rebuild_cache.dir
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/list_install_components.dir
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/install/strip.dir
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/motion.dir
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/edit_cache.dir
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/install.dir

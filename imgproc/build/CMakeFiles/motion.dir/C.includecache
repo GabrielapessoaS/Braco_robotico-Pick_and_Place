@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/inv_kinematics.h
+pigpio.h
+-
+stdio.h
+-
+stdlib.h
+-
+signal.h
+-
+math.h
+-
+
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c
+inv_kinematics.h
+/home/pi/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.h
+

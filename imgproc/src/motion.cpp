@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "inv_kinematics/inv_kinematics.h"
+#include "inv_kinematics.h"
 #include <unistd.h>
 #include <iostream>
 #include <numeric>
@@ -121,7 +121,6 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
 	else
 		cout << "Posicione objetos de calibragem, de cores distintas do plano de fundo e\ncom perimetro de " << PERIM_CALIB << " cm.\n";
-	objects
 	cv::imshow("Plano de fundo", fgMask);
 	int keyboard = cv::waitKey(0);
 	if(keyboard == 'q')
@@ -226,7 +225,7 @@ void smoothMove() {
   int pulse_x;
   int pulse_y;
 
-  while(run) {
+  while(1) {
 	  usleep(10);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_X);  
@@ -256,7 +255,7 @@ void smoothMove() {
 }
 
 int servoControl() {
-	if(!centers_available) return;
+	if(!centers_available) return -1;
 	for(int i=0; i<centerscm.size(); i++) {
 		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usy);
 		lock_motion = 1;
@@ -264,4 +263,5 @@ int servoControl() {
 		while(lock_motion) {};
 		cout << "Objeto " << i << " resgatado.\n";
 	}
+	return 0;
 }

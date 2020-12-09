@@ -26,13 +26,13 @@
  *
  */
 
+#include "inv_kinematics.h"
 
 /* 
  * Limitacao de largura de pulso a ser enviada para os servos.
  *
  * @returns: -1 caso servo nao estiver listado, 0 caso contrario
  */
-#include "inv_kinematics.h"
 
 int gpioServoBound(int servo, int us) {
 	switch(servo) {
@@ -72,7 +72,7 @@ int degree_to_us(double degree, int servo){
 }
 
 void inverse_kinematics(double x, double y, int *usb, int *usx, int *usy){
-  double theta1, double theta2;
+  double theta1, theta2;
   printf("Cinematica inversa para (%lf, %lf)...\n", x, y);
 
   if((sqrt(x*x + y*y) > MAX_LEN) || (sqrt(x*x + y*y) < MIN_LEN)) {
