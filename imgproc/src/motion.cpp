@@ -206,10 +206,12 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		cv::destroyWindow("Reconhecidos");
 		// Reconhecimento finalizado
 		// Etapa de movimentacao dos objetos
-		cout << "Iniciando etapa de movimentação de objetos...\n";
+		if(!calibracao) {
+			cout << "Iniciando etapa de movimentação de objetos...\n";
 
-		if(servoControl() > 0) {
-			cout << "Todos objetos movimentados com sucesso.\n";
+			if(servoControl() > 0) {
+				cout << "Todos objetos movimentados com sucesso.\n";
+			}
 		}
 
 		cv::destroyWindow("Objetos");
