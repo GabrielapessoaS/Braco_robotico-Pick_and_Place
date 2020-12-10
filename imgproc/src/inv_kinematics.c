@@ -40,11 +40,11 @@ int gpioServoBound(int servo, int us) {
 			if( us < MIN_BASE ) us = MIN_BASE;
 			if( us > MAX_BASE ) us = MAX_BASE;
 			break;
-		case SERVO_Z:
+		case SERVO_A2:
 			if( us < MIN_Z ) us = MIN_Z;
 			if( us > MAX_Z ) us = MAX_Z;
 			break;
-		case SERVO_X:
+		case SERVO_A1:
 			if( us < MIN_X ) us = MIN_X;
 			if( us > MAX_X ) us = MAX_X;
 			break;
@@ -59,10 +59,10 @@ int degree_to_us(double degree, int servo){
 		case SERVO_BASE:
 			fprintf(stdout, "valor retornado por base: %d\n", EXP_BASE);
 			return EXP_BASE;
-		case SERVO_X:
+		case SERVO_A1:
 			fprintf(stdout, "valor retornado por X: %d\n", EXP_X);
 			return EXP_X;
-		case SERVO_Z:
+		case SERVO_A2:
 			fprintf(stdout, "valor retornado por Z: %d\n", EXP_Z);
 			return EXP_Z;
 	}
@@ -74,12 +74,12 @@ void inverse_kinematics(double x, double y, int *usb, int *usx, int *usz){
 	double z =0;
 	printf("Cinematica inversa para (%lf, %lf, %lf)...\n", x,y, z);
 
-	if((sqrt(x*x + z*z) > MAX_LEN) || (sqrt(x*x + z*z) < MIN_LEN)) {
+	if((sqrt(y*y + z*z) > MAX_LEN) || (sqrt(y*y + z*z) < MIN_LEN)) {
 		printf("Ponto alem do alcance.\n");
 		return;
 	}
-	theta1 = atan(z/x) + acos((x*x + z*z + a1*a1 - a2*a2)/(2*a1*sqrt(x*x + z*z)));
-	theta2 = theta1 - acos((x*x +z*z - a1*a1 - a2*a2) / (2.0*a1*a2));
+	theta1 = atan(z/y) + acos((y*y + z*z + a1*a1 - a2*a2)/(2*a1*sqrt(y*y + z*z)));
+	theta2 = theta1 - acos((y*y +z*z - a1*a1 - a2*a2) / (2.0*a1*a2));
 	theta3 =  atan2(y, x);
 
 	theta1 = 180.0*theta1/M_PI;
@@ -91,7 +91,7 @@ void inverse_kinematics(double x, double y, int *usb, int *usx, int *usz){
 	printf("theta3 = %lf\n", theta3);
 
 
-	*usx = degree_to_us(theta1, SERVO_X);
-	*usz = degree_to_us(theta2, SERVO_Z);
+	*usx = degree_to_us(theta1, SERVO_A1);
+	*usz = degree_to_us(theta2, SERVO_A2);
 	*usb = degree_to_us(theta3, SERVO_BASE);
 }

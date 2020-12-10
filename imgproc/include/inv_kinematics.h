@@ -7,12 +7,12 @@
 #include <signal.h>
 #include <math.h>
 
-#define GABRIEL 1
-//#define FELIPE 1	// Pra usar as formulas do felipe
+//#define GABRIEL 1
+#define FELIPE 1	// Pra usar as formulas do felipe
 
 #define SERVO_BASE	19
-#define SERVO_Z		13
-#define SERVO_X		12
+#define SERVO_A2		13
+#define SERVO_A1		12
 //#define BOBINA	6 
 
 #ifdef FELIPE

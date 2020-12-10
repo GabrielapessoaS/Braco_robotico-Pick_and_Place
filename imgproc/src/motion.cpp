@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 	double X, Y;				// Posicao instantanea do end effector
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
-	usx = degree_to_us(dg_x, SERVO_X);
+	usx = degree_to_us(dg_x, SERVO_A1);
 	usz = degree_to_us(dg_z, SERVO_Z);
 
 	fprintf(stderr, "valor recebido por usbase = %d" , usbase);
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 	//gpioWrite(BOBINA, 1);
 
 	gpioServoBound(SERVO_BASE, usbase);
-	gpioServoBound(SERVO_X, usx);
+	gpioServoBound(SERVO_A1, usx);
 	gpioServoBound(SERVO_Z, usz);
 
 	cout << "Servos inicializados.\n";
@@ -246,7 +246,7 @@ void smoothMove() {
   while(1) {
 	  usleep(10);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
-	  pulse_x = gpioGetServoPulsewidth(SERVO_X);  
+	  pulse_x = gpioGetServoPulsewidth(SERVO_A1);  
 	  pulse_z = gpioGetServoPulsewidth(SERVO_Z);
 
 	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_z == usz) ) {
@@ -265,9 +265,9 @@ void smoothMove() {
 		  gpioServoBound(SERVO_BASE, pulse_base - SPEED);
 
 	  if( pulse_x < usx )
-		  gpioServoBound(SERVO_X, pulse_x + SPEED);
+		  gpioServoBound(SERVO_A1, pulse_x + SPEED);
 	  else if( pulse_x > usx)
-		  gpioServoBound(SERVO_X, pulse_x - SPEED);
+		  gpioServoBound(SERVO_A1, pulse_x - SPEED);
 
 	  if( pulse_z < usz )
 		  gpioServoBound(SERVO_Z, pulse_z + SPEED);
