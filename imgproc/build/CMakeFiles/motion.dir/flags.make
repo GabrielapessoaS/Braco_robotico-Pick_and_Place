@@ -6,5 +6,5 @@ CXX_FLAGS =   -std=gnu++11
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/include -isystem /usr/include/opencv4 
+CXX_INCLUDES = -I/home/pi/Projeto-embarcados-Braco_robotico/imgproc/include -isystem /usr/local/include/opencv4 
 

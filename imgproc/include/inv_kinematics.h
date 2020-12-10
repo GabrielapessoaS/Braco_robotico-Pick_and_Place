@@ -7,11 +7,15 @@
 #include <signal.h>
 #include <math.h>
 
+#define GABRIEL 1
+//#define FELIPE	// Pra usar as formulas do felipe
+
 #define SERVO_BASE	19
 #define SERVO_Z		13
 #define SERVO_X		12
 //#define BOBINA	6 
 
+#ifdef FELIPE
 #define MIN_BASE	500
 #define MAX_BASE	2500
 
@@ -20,6 +24,18 @@
 
 #define MIN_Z	1000
 #define MAX_Z	2500
+#endif
+
+#ifdef GABRIEL
+#define MIN_BASE	500
+#define MAX_BASE	2500
+
+#define MIN_X	500
+#define MAX_X	1530
+
+#define MIN_Z	1000
+#define MAX_Z	2500
+#endif
 
 #define SPEED 1
 

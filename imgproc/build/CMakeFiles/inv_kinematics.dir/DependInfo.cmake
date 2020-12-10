@@ -4,14 +4,14 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c" "/home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o"
+  "/home/pi/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c" "/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_C_TARGET_INCLUDE_PATH
   "../include"
-  "/usr/include/opencv4"
+  "/usr/local/include/opencv4"
   )
 
 # Targets to which this target links.

@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc
+CMAKE_SOURCE_DIR = /home/pi/Projeto-embarcados-Braco_robotico/imgproc
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build
+CMAKE_BINARY_DIR = /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -126,9 +126,9 @@ install/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

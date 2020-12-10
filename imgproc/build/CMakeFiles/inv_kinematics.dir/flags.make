@@ -6,5 +6,5 @@ C_FLAGS =
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/include -I/usr/include/opencv4 
+C_INCLUDES = -I/home/pi/Projeto-embarcados-Braco_robotico/imgproc/include -I/usr/local/include/opencv4 
 

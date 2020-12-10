@@ -27,7 +27,7 @@ int lock_motion = 0;
 
 void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter);
 void smoothMove();
-int servoControl();
+int servoControl(int sz);
 
 int main(int argc, char* argv[]) {
 	if(argc < 4) {
@@ -119,13 +119,11 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 			cerr << "empty frame\n";
 			return;
 		}
-		cout << "travei aqui";
 		pBackSub->apply(bg, fgMask);
 		cv::imshow("Plano de fundo", fgMask);
 		if(cv::waitKey(5) >= 0)
 			break;
 	}
-	cout << "sai do provavel loop";
 	
 	if(!calibrate)
 		cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
@@ -196,34 +194,34 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 
 			m[i] = cv::moments(contours[i], true);
 			centers[i] = cv::Point(m[i].m10/m[i].m00, m[i].m01/m[i].m00);
-			centerscm[i] = cv::Point2d((centers[i].x-ref.x)/proportion, (ref.y-centers[i].y)/proportion);
+			centerscm[valid_contours] = cv::Point2d((centers[i].x-ref.x)/proportion, (ref.y-centers[i].y)/proportion);
 
 			cv::circle(frame, centers[i], 3, cv::Scalar(128,0,0), -1);
 
-			cout << "Objeto " << valid_contours << ": (" << centerscm[i].x << ", " << centerscm[i].y << ")\n";
-			sprintf(name, "%d:(%.2lf,%.2lf)", valid_contours, centerscm[i].x, centerscm[i].y);
+			cout << "Objeto " << valid_contours << ": (" << centerscm[valid_contours].x << ", " << centerscm[valid_contours].y << ")\n";
+			sprintf(name, "%d:(%.2lf,%.2lf)", valid_contours, centerscm[valid_contours].x, centerscm[valid_contours].y);
 			cv::putText(frame, string(name), centers[i], cv::FONT_HERSHEY_SIMPLEX, 0.50, cv::Scalar(10, 0, 255), 2);
 			cv::line(frame, ref, centers[i], cv::Scalar(0,200,0));
-			cout << i << "\tr = " << sqrt(pow(centerscm[i].x, 2) + pow(centerscm[i].y, 2));
-			cout << "\ttheta = " << 180*atan(((double) centerscm[i].y)/centerscm[i].x)/3.14159265<< endl;
+			cout << i << "\tr = " << sqrt(pow(centerscm[valid_contours].x, 2) + pow(centerscm[valid_contours].y, 2));
+			cout << "\ttheta = " << 180*atan(((double) centerscm[valid_contours].y)/centerscm[valid_contours].x)/3.14159265<< endl;
 
 		}
 		cv::imshow("Reconhecidos", frame);
 		if(cv::waitKey(0) == 'q') {
 			if(!calibrate) return;
 		}
-		cout << centers.size() << " objetos reconhecidos, sendo " << valid_contours << " validos\n";
+		cout << endl << centers.size() << " objetos reconhecidos, sendo " << valid_contours << " validos\n";
 		cv::destroyWindow("Reconhecidos");
 		// Reconhecimento finalizado
 		// Etapa de movimentacao dos objetos
 		if((!calibrate) && (valid_contours > 0)){
 			centers_available = true;	
-			cout << "Iniciando etapa de movimentação de objetos...\n";
+			cout << "\n\n** Iniciando etapa de movimentação de objetos **\n\n";
 
-			if(servoControl() > 0) 
-				cout << "Todos objetos movimentados com sucesso.\n";
+			if(servoControl(valid_contours) == 0) 
+				cout << "\n\tTodos objetos movimentados com sucesso.\n";
 			else
-				cout << "servocontrol deu ruim\n";
+				cout << "\nSem contornos validos\n";
 			
 		}
 
@@ -269,15 +267,16 @@ void smoothMove() {
   }
 }
 
-int servoControl() {
-	cout << "entrei na funcao servocontrole";
+int servoControl(int sz) {
 	if(!centers_available) return -1;
-	for(int i=0; i<centerscm.size(); i++) {
+	for(int i=1; i<=sz; i++) {
+		cout << "Objeto " << i << " (" << centerscm[i].x << ", " << centerscm[i].y << ")\n";
 		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usz);
 		lock_motion = 1;
-		cout << "Resgatando objeto...\n";
-		while(lock_motion) {};
-		cout << "Objeto " << i << " resgatado.\n";
+		cout << "\tResgatando objeto...\n";
+		//while(lock_motion) {};
+		lock_motion=0;
+		cout << "Objeto " << i << " resgatado.\n\n";
 	}
 	return 0;
 }
