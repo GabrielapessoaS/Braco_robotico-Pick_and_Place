@@ -52,21 +52,30 @@ int gpioServoBound(int servo, int us) {
 	//printf("bound: %u us\n", us);
 	return gpioServo(servo, us);
 }
-			
 
 int degree_to_us(double degree, int servo){
+	int v=-1;
 	switch(servo){
 		case SERVO_BASE:
-			fprintf(stdout, "valor retornado por base: %d\n", EXP_BASE);
-			return EXP_BASE;
+			v = EXP_BASE;
+			fprintf(stdout, "valor retornado por base: %d\n", v);
+			break;
 		case SERVO_A1:
-			fprintf(stdout, "valor retornado por X: %d\n", EXP_X);
-			return EXP_X;
+			v = EXP_X;
+			fprintf(stdout, "valor retornado por X: %d\n", v);
+			break;
 		case SERVO_A2:
-			fprintf(stdout, "valor retornado por Z: %d\n", EXP_Z);
-			return EXP_Z;
+			v = EXP_Z;
+			fprintf(stdout, "valor retornado por Z: %d\n", v);
+			break;
 	}
-	return 0;
+
+	if( v < 0 ) return 0;
+
+	if(v < 500) v = 500;
+	else if(v > 2500) v = 2500;
+
+	return v;
 }
 
 void inverse_kinematics(double x, double y, int *usb, int *usx, int *usz){

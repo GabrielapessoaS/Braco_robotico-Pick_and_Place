@@ -1,7 +1,6 @@
 #include <stdio.h>
 extern "C"{
 	#include "inv_kinematics.h"
-
 }
 #include <unistd.h>
 #include <iostream>
@@ -42,7 +41,7 @@ int main(int argc, char* argv[]) {
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
 	usx = degree_to_us(dg_x, SERVO_A1);
-	usz = degree_to_us(dg_z, SERVO_Z);
+	usz = degree_to_us(dg_z, SERVO_A2);
 
 	fprintf(stderr, "valor recebido por usbase = %d" , usbase);
 	fprintf(stderr, "valor recebido por usx = %d" , usx);
@@ -60,7 +59,7 @@ int main(int argc, char* argv[]) {
 
 	gpioServoBound(SERVO_BASE, usbase);
 	gpioServoBound(SERVO_A1, usx);
-	gpioServoBound(SERVO_Z, usz);
+	gpioServoBound(SERVO_A2, usz);
 
 	cout << "Servos inicializados.\n";
 
@@ -77,7 +76,7 @@ int main(int argc, char* argv[]) {
 	//loop infinito do reconhecimento de objeto
 #ifdef	FELIPE
 	while(1)
-	findObjects(true, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	findObjects(false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
 #endif
 #ifdef	GABRIEL
 	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
@@ -243,21 +242,24 @@ void smoothMove() {
   int pulse_base;
   int pulse_x;
   int pulse_z;
+  int show_dest = 1;
 
   while(1) {
-	  usleep(10);
+	  usleep(10000 - SPEED*3);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_A1);  
-	  pulse_z = gpioGetServoPulsewidth(SERVO_Z);
+	  pulse_z = gpioGetServoPulsewidth(SERVO_A2);
 
 	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_z == usz) ) {
 		  usleep(100000);
 		  lock_motion = 0;
+		  show_dest = 1;
 	  }
-	  if(lock_motion) {
+	  if(lock_motion && show_dest) {
 		  cout << "Base: " << pulse_base << " -> " << usbase << endl;
 		  cout << "x: " << pulse_x << " -> " << usx << endl;
 		  cout << "y: " << pulse_z << " -> " << usz << endl;
+		  show_dest = 0;
 	  }
 
 	  if( pulse_base < usbase )
@@ -271,9 +273,9 @@ void smoothMove() {
 		  gpioServoBound(SERVO_A1, pulse_x - SPEED);
 
 	  if( pulse_z < usz )
-		  gpioServoBound(SERVO_Z, pulse_z + SPEED);
+		  gpioServoBound(SERVO_A2, pulse_z + SPEED);
 	  else if( pulse_z > usz)
-		  gpioServoBound(SERVO_Z, pulse_z - SPEED);
+		  gpioServoBound(SERVO_A2, pulse_z - SPEED);
   }
 }
 
