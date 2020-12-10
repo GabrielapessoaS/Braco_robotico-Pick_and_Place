@@ -40,9 +40,9 @@ int gpioServoBound(int servo, int us) {
 			if( us < MIN_BASE ) us = MIN_BASE;
 			if( us > MAX_BASE ) us = MAX_BASE;
 			break;
-		case SERVO_Y:
-			if( us < MIN_Y ) us = MIN_Y;
-			if( us > MAX_Y ) us = MAX_Y;
+		case SERVO_Z:
+			if( us < MIN_Z ) us = MIN_Z;
+			if( us > MAX_Z ) us = MAX_Z;
 			break;
 		case SERVO_X:
 			if( us < MIN_X ) us = MIN_X;
@@ -60,35 +60,42 @@ int degree_to_us(double degree, int servo){
 		case SERVO_BASE:
 			//k=((int)(-15.55*(dg_k- *degree) + 1900.0));
 			//return ((int)(-11.11*(*degree) + 1500.0));
-			return (int)(9.14*degree );
+			//return (int)(9.14*degree );
+			return ((int)11.1111*degree + 500);
 		case SERVO_X:
 			//return ((int)(11.11*(*degree)+ 500.0));
-			return ((int)(9.14*(180-degree) + 547.4));
-		case SERVO_Y:
+			//return ((int)(9.14*(180-degree) + 547.4));
+			return ((int)-11.1111*degree + 1500);
+		case SERVO_Z:
 			//return ((int)(-15.55*(*degree - dg_j) + 1900.0));
-			return ((int)(9.14*degree + 1950.0));
+			//return ((int)(9.14*degree + 1950.0));
+			return ((int)10.7142*degree + 1800);
 	}
 	return 0;
 }
 
-void inverse_kinematics(double x, double y, int *usb, int *usx, int *usy){
-  double theta1, theta2;
-  printf("Cinematica inversa para (%lf, %lf)...\n", x, y);
+void inverse_kinematics(double x, double z, int *usb, int *usx, int *usz){
+  double theta1, theta2, theta3;
+  printf("Cinematica inversa para (%lf, %lf)...\n", x, z);
 
-  if((sqrt(x*x + y*y) > MAX_LEN) || (sqrt(x*x + y*y) < MIN_LEN)) {
+  if((sqrt(x*x + z*z) > MAX_LEN) || (sqrt(x*x + z*z) < MIN_LEN)) {
 	  printf("Ponto alem do alcance.\n");
 	  return;
   }
-  theta1 = atan(y/x) + acos((x*x + y*y + a1*a1 - a2*a2)/(2*a1*sqrt(x*x + y*y)));
-  theta2 = theta1 - acos((x*x + y*y - a1*a1 - a2*a2) / (2.0*a1*a2));
+  theta1 = atan(z/x) + acos((x*x + z*z + a1*a1 - a2*a2)/(2*a1*sqrt(x*x + z*z)));
+  theta2 = theta1 - acos((x*x +z*z - a1*a1 - a2*a2) / (2.0*a1*a2));
+	theta3 =  atan(z/x);
 
   theta1 = 180.0*theta1/M_PI;
   theta2 = 180.0*theta2/M_PI;
+  theta3 = 180.0*theta3/M_PI;
 
   printf("theta1 = %lf\n", theta1);
   printf("theta2 = %lf\n", theta2);
+  printf("theta3 = %lf\n", theta3);
 
 
   *usx = degree_to_us(theta1, SERVO_X);
-  *usy = degree_to_us(theta2, SERVO_Y);
+  *usz = degree_to_us(theta2, SERVO_Z);
+	*usb = degree_to_us(theta3, SERVO_BASE);
 }

@@ -1,5 +1,8 @@
 #include <stdio.h>
-#include "inv_kinematics.h"
+extern "C"{
+	#include "inv_kinematics.h"
+
+}
 #include <unistd.h>
 #include <iostream>
 #include <numeric>
@@ -39,7 +42,12 @@ int main(int argc, char* argv[]) {
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
 	usx = degree_to_us(dg_x, SERVO_X);
-	usy = degree_to_us(dg_y, SERVO_Y);
+	usy = degree_to_us(dg_y, SERVO_Z);
+
+	fprintf(stderr, "valor retornado por base: %d\n", degree_to_us(dg_base, SERVO_BASE));
+	fprintf(stderr, "valor retornado por X: %d\n", degree_to_us(dg_x, SERVO_X));
+	fprintf(stderr, "valor retornado por Y: %d\n", degree_to_us(dg_y, SERVO_Z));
+
 
 	printf("Inicializando GPIOs dos servos...\n");
 	if(gpioInitialise() < 0) {
@@ -50,9 +58,9 @@ int main(int argc, char* argv[]) {
 	//gpioSetMode(BOBINA, PI_OUTPUT);
 	//gpioWrite(BOBINA, 1);
 
-	gpioServoBound(SERVO_BASE, degree_to_us(dg_base, 0));
-	gpioServoBound(SERVO_X, degree_to_us(dg_x, 1));
-	gpioServoBound(SERVO_Y, degree_to_us(dg_y, 2));
+	gpioServoBound(SERVO_BASE, degree_to_us(dg_base, SERVO_BASE));
+	gpioServoBound(SERVO_X, degree_to_us(dg_x, SERVO_X));
+	gpioServoBound(SERVO_Z, degree_to_us(dg_y, SERVO_Z));
 
 	cout << "Servos inicializados.\n";
 
@@ -206,7 +214,7 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		cv::destroyWindow("Reconhecidos");
 		// Reconhecimento finalizado
 		// Etapa de movimentacao dos objetos
-		if(!calibracao) {
+		if(!calibrate) {
 			cout << "Iniciando etapa de movimentação de objetos...\n";
 
 			if(servoControl() > 0) {
@@ -231,7 +239,7 @@ void smoothMove() {
 	  usleep(10);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_X);  
-	  pulse_y = gpioGetServoPulsewidth(SERVO_Y);
+	  pulse_y = gpioGetServoPulsewidth(SERVO_Z);
 
 	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_y == usy) ) {
 		  cout << "Atingido ponto do objeto.\n";
@@ -250,9 +258,9 @@ void smoothMove() {
 		  gpioServoBound(SERVO_X, pulse_x - SPEED);
 
 	  if( pulse_y < usy )
-		  gpioServoBound(SERVO_Y, pulse_y + SPEED);
+		  gpioServoBound(SERVO_Z, pulse_y + SPEED);
 	  else if( pulse_y > usy)
-		  gpioServoBound(SERVO_Y, pulse_y - SPEED);
+		  gpioServoBound(SERVO_Z, pulse_y - SPEED);
   }
 }
 

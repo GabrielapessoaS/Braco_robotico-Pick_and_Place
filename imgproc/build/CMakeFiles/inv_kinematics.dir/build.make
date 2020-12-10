@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/pi/Projeto-embarcados-Braco_robotico/imgproc
+CMAKE_SOURCE_DIR = /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build
+CMAKE_BINARY_DIR = /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/inv_kinematics.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/inv_kinematics.dir/flags.make
 
 CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o: CMakeFiles/inv_kinematics.dir/flags.make
 CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o: ../src/inv_kinematics.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o   -c /home/pi/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o   -c /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c
 
 CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/pi/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c > CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c > CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.i
 
 CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/pi/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c -o CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c -o CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.s
 
 # Object files for target inv_kinematics
 inv_kinematics_OBJECTS = \
@@ -80,7 +80,7 @@ inv_kinematics_EXTERNAL_OBJECTS =
 libinv_kinematics.a: CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o
 libinv_kinematics.a: CMakeFiles/inv_kinematics.dir/build.make
 libinv_kinematics.a: CMakeFiles/inv_kinematics.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C static library libinv_kinematics.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C static library libinv_kinematics.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/inv_kinematics.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/inv_kinematics.dir/link.txt --verbose=$(VERBOSE)
 
@@ -94,6 +94,6 @@ CMakeFiles/inv_kinematics.dir/clean:
 .PHONY : CMakeFiles/inv_kinematics.dir/clean
 
 CMakeFiles/inv_kinematics.dir/depend:
-	cd /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/pi/Projeto-embarcados-Braco_robotico/imgproc /home/pi/Projeto-embarcados-Braco_robotico/imgproc /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build /home/pi/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/inv_kinematics.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build /home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/build/CMakeFiles/inv_kinematics.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/inv_kinematics.dir/depend
 
