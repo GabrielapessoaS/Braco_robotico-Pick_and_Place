@@ -60,18 +60,18 @@ int degree_to_us(double degree, int servo){
 			//k=((int)(-15.55*(dg_k- *degree) + 1900.0));
 			//return ((int)(-11.11*(*degree) + 1500.0));
 			//return (int)(9.14*degree );
-			fprintf(stdout, "valor retornado por base: %d\n", (int)11.1111*degree + 500);
-			return ((int)11.1111*degree + 500);
+			fprintf(stdout, "valor retornado por base: %d\n", (int)(11.1111*degree + 500));
+			return (int)(11.1111*degree + 500);
 		case SERVO_X:
 			//return ((int)(11.11*(*degree)+ 500.0));
 			//return ((int)(9.14*(180-degree) + 547.4));
-			fprintf(stdout, "valor retornado por X: %d\n", (int)-11.1111*degree + 1500);  
-			return ((int)-11.1111*degree + 1500);
+			fprintf(stdout, "valor retornado por X: %d\n", (int)(-11.1111*degree + 1500));  
+			return (int)(-11.1111*degree + 1500);
 		case SERVO_Z:
 			//return ((int)(-15.55*(*degree - dg_j) + 1900.0));
 			//return ((int)(9.14*degree + 1950.0));
-			fprintf(stdout, "valor retornado por Z: %d\n", (int)10.7142*degree + 1800); 
-			return ((int)10.7142*degree + 1800);
+			fprintf(stdout, "valor retornado por Z: %d\n", (int)(10.7142*degree + 1800)); 
+			return (int)(10.7142*degree + 1800);
 	}
 	return 0;
 }

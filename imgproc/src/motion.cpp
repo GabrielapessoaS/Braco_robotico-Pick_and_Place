@@ -44,6 +44,10 @@ int main(int argc, char* argv[]) {
 	usx = degree_to_us(dg_x, SERVO_X);
 	usz = degree_to_us(dg_z, SERVO_Z);
 
+	fprintf(stderr, "valor recebido por usbase = %d" , usbase);
+	fprintf(stderr, "valor recebido por usx = %d" , usx);
+	fprintf(stderr, "valor recebido por usz = %d" , usz);
+
 
 	printf("Inicializando GPIOs dos servos...\n");
 	if(gpioInitialise() < 0) {
@@ -115,16 +119,18 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 			cerr << "empty frame\n";
 			return;
 		}
+		cout << "travei aqui";
 		pBackSub->apply(bg, fgMask);
 		cv::imshow("Plano de fundo", fgMask);
 		if(cv::waitKey(5) >= 0)
 			break;
 	}
+	cout << "sai do provavel loop";
 	
 	if(!calibrate)
 		cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
 	else
-		cout << "Posicione objetos de calibragem, de cores distintas do plano de fundo e\ncom perimetro de " << PERIM_CALIB << " cm.\n";
+		cerr << "Posicione objetos de calibragem, de cores distintas do plano de fundo e\ncom perimetro de " << PERIM_CALIB << " cm.\n";
 	cv::imshow("Plano de fundo", fgMask);
 	int keyboard = cv::waitKey(0);
 	if(keyboard == 'q')
@@ -210,12 +216,15 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		cv::destroyWindow("Reconhecidos");
 		// Reconhecimento finalizado
 		// Etapa de movimentacao dos objetos
-		if(!calibrate) {
+		if((!calibrate) && (valid_contours > 0)){
+			centers_available = true;	
 			cout << "Iniciando etapa de movimentação de objetos...\n";
 
-			if(servoControl() > 0) {
+			if(servoControl() > 0) 
 				cout << "Todos objetos movimentados com sucesso.\n";
-			}
+			else
+				cout << "servocontrol deu ruim\n";
+			
 		}
 
 		cv::destroyWindow("Objetos");
@@ -238,7 +247,7 @@ void smoothMove() {
 	  pulse_y = gpioGetServoPulsewidth(SERVO_Z);
 
 	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_y == usz) ) {
-		  cout << "Atingido ponto do objeto.\n";
+		  //cout << "Atingido ponto do objeto.\n";
 		  usleep(100000);
 		  lock_motion = 0;
 	  }
@@ -261,6 +270,7 @@ void smoothMove() {
 }
 
 int servoControl() {
+	cout << "entrei na funcao servocontrole";
 	if(!centers_available) return -1;
 	for(int i=0; i<centerscm.size(); i++) {
 		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usz);
