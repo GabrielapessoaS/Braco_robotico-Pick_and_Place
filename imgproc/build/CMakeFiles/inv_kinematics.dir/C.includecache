@@ -18,7 +18,7 @@ signal.h
 math.h
 -
 
-/home/pi/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c
+/home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.c
 inv_kinematics.h
-/home/pi/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.h
+/home/pi/Git/Projeto-embarcados-Braco_robotico/imgproc/src/inv_kinematics.h
 

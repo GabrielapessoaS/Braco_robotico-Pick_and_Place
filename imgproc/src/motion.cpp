@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	double dg_x=90, dg_z=0, dg_base=90;	// Posicao inicial dos servos (graus)
+	double dg_x=90, dg_z=0, dg_base=170;	// Posicao inicial dos servos (graus)
 	double X, Y;				// Posicao instantanea do end effector
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
@@ -73,10 +73,15 @@ int main(int argc, char* argv[]) {
 	// Thread de suavizacao de movimentos dos servomotores
 	thread armServos(smoothMove);
 	// Thread de processamento de imagens
-	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+//	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
 
+	//loop infinito do reconhecimento de objeto
+	while(1){
+		findObjects(false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	}
 
-	objectRecognition.join();
+	//objectRecognition.join();
+	armServos.join();
 
 	gpioTerminate();
 
@@ -245,7 +250,7 @@ void smoothMove() {
 	  pulse_y = gpioGetServoPulsewidth(SERVO_Z);
 
 	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_y == usz) ) {
-		  //cout << "Atingido ponto do objeto.\n";
+		  cout << "Atingido ponto do objeto.\n";
 		  usleep(100000);
 		  lock_motion = 0;
 	  }
