@@ -33,7 +33,7 @@
 #ifdef GABRIEL
 #define MIN_BASE	500
 #define MAX_BASE	2500
-#define EXP_BASE	(int)(9.14*degree + 1950.0)
+#define EXP_BASE	(int)(9.14*degree)
 
 #define MIN_X	900
 #define MAX_X	2300

@@ -122,7 +122,7 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		capture >> bg;
 		if(frame.empty()) {
 			cerr << "empty frame\n";
-			return;
+			continue;
 		}
 		pBackSub->apply(bg, fgMask);
 		cv::imshow("Plano de fundo", fgMask);
@@ -241,18 +241,22 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 void smoothMove() {
   int pulse_base;
   int pulse_x;
-  int pulse_y;
+  int pulse_z;
 
   while(1) {
 	  usleep(10);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_X);  
-	  pulse_y = gpioGetServoPulsewidth(SERVO_Z);
+	  pulse_z = gpioGetServoPulsewidth(SERVO_Z);
 
-	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_y == usz) ) {
-		  cout << "Atingido ponto do objeto.\n";
+	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_z == usz) ) {
 		  usleep(100000);
 		  lock_motion = 0;
+	  }
+	  if(lock_motion) {
+		  cout << "Base: " << pulse_base << " -> " << usbase << endl;
+		  cout << "x: " << pulse_x << " -> " << usx << endl;
+		  cout << "y: " << pulse_z << " -> " << usz << endl;
 	  }
 
 	  if( pulse_base < usbase )
@@ -265,10 +269,10 @@ void smoothMove() {
 	  else if( pulse_x > usx)
 		  gpioServoBound(SERVO_X, pulse_x - SPEED);
 
-	  if( pulse_y < usz )
-		  gpioServoBound(SERVO_Z, pulse_y + SPEED);
-	  else if( pulse_y > usz)
-		  gpioServoBound(SERVO_Z, pulse_y - SPEED);
+	  if( pulse_z < usz )
+		  gpioServoBound(SERVO_Z, pulse_z + SPEED);
+	  else if( pulse_z > usz)
+		  gpioServoBound(SERVO_Z, pulse_z - SPEED);
   }
 }
 
@@ -278,8 +282,9 @@ int servoControl(int sz) {
 		cout << "Objeto " << i << " (" << centerscm[i].x << ", " << centerscm[i].y << ")\n";
 		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usz);
 		lock_motion = 1;
-		cout << "\tResgatando objeto...\n";
-		while(lock_motion) {};
+		cout << "\tResgatando objeto..." << lock_motion << "\n";
+		while(lock_motion) {
+		};
 		cout << "Objeto " << i << " resgatado.\n\n";
 	}
 	return 0;
