@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	double dg_x=90, dg_z=0, dg_base=170;	// Posicao inicial dos servos (graus)
+	double dg_x=90, dg_z=0, dg_base=180;	// Posicao inicial dos servos (graus)
 	double X, Y;				// Posicao instantanea do end effector
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
@@ -244,21 +244,22 @@ void smoothMove() {
   int pulse_z;
   int show_dest = 1;
 
+
+
   while(1) {
-	  usleep(10000 - SPEED*3);
+	  usleep(10000);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_A1);  
 	  pulse_z = gpioGetServoPulsewidth(SERVO_A2);
-
 	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_z == usz) ) {
 		  usleep(100000);
 		  lock_motion = 0;
 		  show_dest = 1;
 	  }
 	  if(lock_motion && show_dest) {
-		  cout << "Base: " << pulse_base << " -> " << usbase << endl;
-		  cout << "x: " << pulse_x << " -> " << usx << endl;
-		  cout << "y: " << pulse_z << " -> " << usz << endl;
+		  cout << "Base:\t " << pulse_base << "-> " << usbase << endl;
+		  cout << "x:\t " << pulse_x << "-> " << usx << endl;
+		  cout << "y:\t" << pulse_z << "-> " << usz << endl;
 		  show_dest = 0;
 	  }
 
