@@ -9,6 +9,12 @@
 //#define BUT_DEC	22
 //#define BOBINA	4
 
+#define FELIPE 1
+//#define GABRIEL 1
+
+#ifdef GABRIEL
+
+
 #define SERVO_BASE	27
 #define SERVO_Y		17
 #define SERVO_X		4
@@ -22,6 +28,22 @@
 
 #define MIN_Y	1000
 #define MAX_Y	2500
+#endif
+
+#ifdef FELIPE
+#define SERVO_BASE	19
+#define SERVO_Y		13
+#define SERVO_X			12
+
+#define MIN_BASE	500
+#define MAX_BASE	2500
+
+#define MIN_X	1000
+#define MAX_X	1530
+
+#define MIN_Y	1000
+#define MAX_Y	2500
+#endif
 
 #define SPEED 1
 
@@ -65,13 +87,29 @@ int degree_to_us(double degree, int servo){
 		case SERVO_BASE:
 			//k=((int)(-15.55*(dg_k- *degree) + 1900.0));
 			//return ((int)(-11.11*(*degree) + 1500.0));
+#ifdef GABRIEL
 			return (int)(9.14*degree );
+#endif
+#ifdef FELIPE
+			return (int)(11.1111*degree + 500);
+#endif
+
 		case SERVO_X:
 			//return ((int)(11.11*(*degree)+ 500.0));
+#ifdef GABRIEL
 			return ((int)(9.14*(180-degree) + 547.4));
+#endif
+#ifdef FELIPE
+			return (int)(-11.1111*degree + 1500);
+#endif
 		case SERVO_Y:
 			//return ((int)(-15.55*(*degree - dg_j) + 1900.0));
+#ifdef GABRIEL
 			return ((int)(9.14*degree + 1950.0));
+#endif
+#ifdef FELIPE
+			return (int)(10.7142*degree + 1800);
+#endif
 	}
 	return 0;
 }
