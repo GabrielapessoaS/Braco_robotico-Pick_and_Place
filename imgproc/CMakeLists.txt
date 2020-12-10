@@ -6,13 +6,11 @@ find_package( OpenCV REQUIRED )
 
 SET(OpenCV_DIR ~/opencv/)
 
-include_directories( ${OpenCV_INCLUDE_DIRS} )
+include_directories( include ${OpenCV_INCLUDE_DIRS} )
 
-MACRO(add_object name)
-	ADD_EXECUTABLE(${name} ${name}.cpp)
-	TARGET_LINK_LIBRARIES(${name} ${OpenCV_LIBS} pthread)
-ENDMACRO()
+file(GLOB SOURCES "src/*.cpp")
 
-add_object(motion)
-add_object(hues)
-add_object(colorsep)
+add_executable(motion ${SOURCES})
+add_library(inv_kinematics "src/inv_kinematics.c")
+target_link_libraries(motion ${OpenCV_LIBS} pthread pigpio m rt inv_kinematics)
+install(TARGETS motion DESTINATION bin)
