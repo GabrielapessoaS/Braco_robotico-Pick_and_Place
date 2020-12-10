@@ -94,4 +94,6 @@ void inverse_kinematics(double x, double y, int *usb, int *usx, int *usz){
 	*usx = degree_to_us(theta1, SERVO_A1);
 	*usz = degree_to_us(theta2, SERVO_A2);
 	*usb = degree_to_us(theta3, SERVO_BASE);
+
+	printf("Entre na funcao de cinematica inversa\n\n");
 }
