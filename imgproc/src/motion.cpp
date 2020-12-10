@@ -22,7 +22,7 @@ vector<cv::Point2d> centerscm;	// Vetor que contem os centros dos objetos
 bool centers_available = false;	// Flag para indicar diponibilidade de centros no vetor
 double proportion = -1;		// Coeficiente de proporcao de centimetros/pixel
 
-int usbase = 0, usx = 0, usy = 0;
+int usbase = 0, usx = 0, usz = 0;
 int lock_motion = 0;
 
 void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter);
@@ -37,16 +37,12 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	double dg_x=90, dg_y=0, dg_base=90;	// Posicao inicial dos servos (graus)
+	double dg_x=90, dg_z=0, dg_base=90;	// Posicao inicial dos servos (graus)
 	double X, Y;				// Posicao instantanea do end effector
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
 	usx = degree_to_us(dg_x, SERVO_X);
-	usy = degree_to_us(dg_y, SERVO_Z);
-
-	fprintf(stderr, "valor retornado por base: %d\n", degree_to_us(dg_base, SERVO_BASE));
-	fprintf(stderr, "valor retornado por X: %d\n", degree_to_us(dg_x, SERVO_X));
-	fprintf(stderr, "valor retornado por Y: %d\n", degree_to_us(dg_y, SERVO_Z));
+	usz = degree_to_us(dg_z, SERVO_Z);
 
 
 	printf("Inicializando GPIOs dos servos...\n");
@@ -58,9 +54,9 @@ int main(int argc, char* argv[]) {
 	//gpioSetMode(BOBINA, PI_OUTPUT);
 	//gpioWrite(BOBINA, 1);
 
-	gpioServoBound(SERVO_BASE, degree_to_us(dg_base, SERVO_BASE));
-	gpioServoBound(SERVO_X, degree_to_us(dg_x, SERVO_X));
-	gpioServoBound(SERVO_Z, degree_to_us(dg_y, SERVO_Z));
+	gpioServoBound(SERVO_BASE, usbase);
+	gpioServoBound(SERVO_X, usx);
+	gpioServoBound(SERVO_Z, usz);
 
 	cout << "Servos inicializados.\n";
 
@@ -241,7 +237,7 @@ void smoothMove() {
 	  pulse_x = gpioGetServoPulsewidth(SERVO_X);  
 	  pulse_y = gpioGetServoPulsewidth(SERVO_Z);
 
-	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_y == usy) ) {
+	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_y == usz) ) {
 		  cout << "Atingido ponto do objeto.\n";
 		  usleep(100000);
 		  lock_motion = 0;
@@ -257,9 +253,9 @@ void smoothMove() {
 	  else if( pulse_x > usx)
 		  gpioServoBound(SERVO_X, pulse_x - SPEED);
 
-	  if( pulse_y < usy )
+	  if( pulse_y < usz )
 		  gpioServoBound(SERVO_Z, pulse_y + SPEED);
-	  else if( pulse_y > usy)
+	  else if( pulse_y > usz)
 		  gpioServoBound(SERVO_Z, pulse_y - SPEED);
   }
 }
@@ -267,7 +263,7 @@ void smoothMove() {
 int servoControl() {
 	if(!centers_available) return -1;
 	for(int i=0; i<centerscm.size(); i++) {
-		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usy);
+		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usz);
 		lock_motion = 1;
 		cout << "Resgatando objeto...\n";
 		while(lock_motion) {};
