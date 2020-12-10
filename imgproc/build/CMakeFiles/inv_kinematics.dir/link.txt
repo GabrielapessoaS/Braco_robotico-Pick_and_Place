@@ -1,2 +1,0 @@
-/usr/bin/ar qc libinv_kinematics.a  CMakeFiles/inv_kinematics.dir/src/inv_kinematics.c.o
-/usr/bin/ranlib libinv_kinematics.a
