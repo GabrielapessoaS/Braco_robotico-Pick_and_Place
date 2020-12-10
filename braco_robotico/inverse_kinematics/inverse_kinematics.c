@@ -16,25 +16,24 @@
 #define SERVO_X 12
 #define BOBINA	6 
 
-
-
-// pinos braco gabriel
-/*#define SERVO_BASE	27
-#define SERVO_Y		17
-#define SERVO_X		4
-#define BOBINA	6 
-*/
-
 #define MIN_BASE	500
 #define MAX_BASE	2500
 
+/* Constantes felipe
 #define MIN_X	500
 #define MAX_X	1550
 
 #define MIN_Y	1000
 #define MAX_Y	2500
+*/
+#define MIN_X	900
+#define MAX_X	2300
 
-#define SPEED 1
+#define MIN_Y	500
+#define MAX_Y	2500
+
+
+#define SPEED 4
 
 const double a1 = 8.0;
 const double a2 =8.0; 
@@ -76,16 +75,16 @@ int degree_to_us(double degree, int servo){
 		case SERVO_BASE:
 			//k=((int)(-15.55*(dg_k- *degree) + 1900.0));
 			//return ((int)(-11.11*(*degree) + 1500.0));
-			//0return (int)(9.14*degree );
-			return ((int)11.1111*degree + 500);
+			return (int)(9.14*degree );
+			//return ((int)11.1111*degree + 500);
 		case SERVO_X:
 			//return ((int)(11.11*(*degree)+ 500.0));
-			//return ((int)(9.14*(180-degree) + 547.4));
-			return ((int)-11.1111*(degree) + 1500);
+			return ((int)(9.14*(180-degree) + 547.4));
+			//return ((int)-11.1111*(degree) + 1500);
 		case SERVO_Y:
 			//return ((int)(-15.55*(*degree - dg_j) + 1900.0));
-			//return ((int)(9.14*degree + 1950.0));
-			return ((int)10.7142*degree + 1800);
+			return ((int)(9.14*degree + 2100.0));
+			//return ((int)10.7142*degree + 1800);
 	}
 	return 0;
 }
