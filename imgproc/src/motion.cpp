@@ -279,8 +279,7 @@ int servoControl(int sz) {
 		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usz);
 		lock_motion = 1;
 		cout << "\tResgatando objeto...\n";
-		//while(lock_motion) {};
-		lock_motion=0;
+		while(lock_motion) {};
 		cout << "Objeto " << i << " resgatado.\n\n";
 	}
 	return 0;
