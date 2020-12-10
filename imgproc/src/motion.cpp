@@ -73,15 +73,16 @@ int main(int argc, char* argv[]) {
 	// Thread de suavizacao de movimentos dos servomotores
 	thread armServos(smoothMove);
 	// Thread de processamento de imagens
-//	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
 
 	//loop infinito do reconhecimento de objeto
-	while(1){
-		findObjects(false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
-	}
-
-	//objectRecognition.join();
-	armServos.join();
+#ifdef	FELIPE
+	while(1)
+	findObjects(true, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+#endif
+#ifdef	GABRIEL
+	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	objectRecognition.join();
+#endif
 
 	gpioTerminate();
 
@@ -122,7 +123,7 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		capture >> bg;
 		if(frame.empty()) {
 			cerr << "empty frame\n";
-			continue;
+			exit(1);
 		}
 		pBackSub->apply(bg, fgMask);
 		cv::imshow("Plano de fundo", fgMask);
