@@ -9,28 +9,28 @@
 //#define BUT_DEC	22
 //#define BOBINA	4
 
-#define FELIPE 1
-//#define GABRIEL 1
+#define FELIPE		1
+//#define GABRIEL	1
 
 #ifdef GABRIEL
 
 #define SERVO_BASE	27
-#define SERVO_A2		17
-#define SERVO_A1		4
+#define SERVO_A2	17
+#define SERVO_A1	4
 //#define BOBINA	6 
 
 #define MIN_BASE	500
 #define MAX_BASE	2500
 
-#define MIN_X	1000
-#define MAX_X	1530
+#define MIN_X	500
+#define MAX_X	1550
 
 #define MIN_Y	1000
 #define MAX_Y	2500
 #endif
 
 #ifdef FELIPE
-#define SERVO_BASE	19
+#define SERVO_BASE		19
 #define SERVO_A2		13
 #define SERVO_A1		12
 
@@ -44,10 +44,11 @@
 #define MAX_Y	2500
 #endif
 
-#define SPEED 1
+
+#define SPEED 4
 
 const double a1 = 8.0;
-const double a2 = 8.0;
+const double a2 =8.0; 
 
 #define MAX_LEN	a1+a2
 #define MIN_LEN 1
@@ -186,8 +187,8 @@ int main(int argc, char **argv){
 
 	gpioSetSignalFunc(SIGINT, stop);
 
-	//gpioSetMode(BOBINA, PI_OUTPUT);
-	//gpioWrite(BOBINA, 1);
+	gpioSetPWMrange(BOBINA, 100);
+	gpioSetPWMfrequency(BOBINA, 100);
 
 	//gpioSetMode(BUT_SEL, PI_INPUT);
 	//gpioSetMode(BUT_INC, PI_INPUT);
