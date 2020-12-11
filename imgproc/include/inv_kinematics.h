@@ -7,8 +7,8 @@
 #include <signal.h>
 #include <math.h>
 
-#define GABRIEL 1
-//#define FELIPE 1	// Pra usar as formulas do felipe
+//#define GABRIEL 1
+#define FELIPE 1	// Pra usar as formulas do felipe
 
 #define SERVO_BASE	19
 #define SERVO_A2		13
@@ -44,7 +44,7 @@
 #define EXP_Z	(int)(9.14*degree + 2100.0)
 #endif
 
-#define SPEED 10
+#define SPEED 1
 
 #define d1 8.0
 #define d2 8.0

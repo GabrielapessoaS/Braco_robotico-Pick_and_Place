@@ -80,7 +80,7 @@ int degree_to_us(double degree, int servo){
 
 void inverse_kinematics(double x, double y, double z, int *usb, int *usx, int *usz){
 	double theta1, theta2, theta3;
-	double xb, yb;
+	double xb;
 	printf("Cinematica inversa para (%lf, %lf, %lf)...\n", x,y, z);
 
 	if((sqrt(x*x + y*y + z*z) > MAX_LEN) || (sqrt(x*x + y*y + z*z) < MIN_LEN)) {
@@ -89,10 +89,9 @@ void inverse_kinematics(double x, double y, double z, int *usb, int *usx, int *u
 	}
 
 	xb = sqrt(x*x + y*y);
-	yb = sqrt(z*z + y*y + x*x - xb*xb);
 
-	theta1 = atan(yb/xb) + acos((xb*xb + yb*yb + d1*d1 - d2*d2)/(2*d1*sqrt(xb*xb + yb*yb)));
-	theta2 = theta1 - acos((xb*xb +yb*yb - d1*d1 - d2*d2) / (2.0*d1*d2));
+	theta1 = atan2(z,xb) + acos((xb*xb + z*z + d1*d1 - d2*d2)/(2*d1*sqrt(xb*xb + z*z)));
+	theta2 = theta1 - acos((xb*xb +z*z - d1*d1 - d2*d2) / (2.0*d1*d2));
 	theta3 =  atan2(y, x);
 
 	theta1 = 180.0*theta1/M_PI;

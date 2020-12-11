@@ -30,6 +30,7 @@ int usbase = 0, usx = 0, usz = 0;
 int lock_motion = 0;
 int calib = 0;
 int ok_but = 0;
+int dir = 0;
 
 void findObjects(int calibrate, int cam, int minarea, int bgIter, int objIter, bool loop);
 void smoothMove();
@@ -289,11 +290,64 @@ void smoothMove() {
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_A1);  
 	  pulse_z = gpioGetServoPulsewidth(SERVO_A2);
-	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_z == usz) ) {
+		if (!dir){
+			if( !(pulse_base == usbase) ) {
+				if( pulse_base < usbase )
+					gpioServoBound(SERVO_BASE, pulse_base + SPEED);
+				else if( pulse_base > usbase)
+					gpioServoBound(SERVO_BASE, pulse_base - SPEED);
+			}
+			else if(!(pulse_x == usx)){
+				if( pulse_x < usx )
+					gpioServoBound(SERVO_A1, pulse_x + SPEED);
+				else if( pulse_x > usx)
+					gpioServoBound(SERVO_A1, pulse_x - SPEED);
+
+			}
+			else if(!(pulse_z == usz)){
+			if( pulse_z < usz )
+				gpioServoBound(SERVO_A2, pulse_z + SPEED);
+			else if( pulse_z > usz)
+				gpioServoBound(SERVO_A2, pulse_z - SPEED);
+			
+			}
+			else{
+
+				//usleep(100000);
+				lock_motion = 0;
+				show_dest = 1;
+			}
+
+		}
+		else{
+
+	  if( !(pulse_z == usz) ) {
+			if( pulse_z < usz )
+				gpioServoBound(SERVO_A2, pulse_z + SPEED);
+			else if( pulse_z > usz)
+				gpioServoBound(SERVO_A2, pulse_z - SPEED);
+	  }
+		else if(!(pulse_x == usx)){
+			if( pulse_x < usx )
+				gpioServoBound(SERVO_A1, pulse_x + SPEED);
+			else if( pulse_x > usx)
+				gpioServoBound(SERVO_A1, pulse_x - SPEED);
+
+		}
+		else if(!(pulse_base == usbase)){
+	  if( pulse_base < usbase )
+		  gpioServoBound(SERVO_BASE, pulse_base + SPEED);
+	  else if( pulse_base > usbase)
+		  gpioServoBound(SERVO_BASE, pulse_base - SPEED);
+		
+		}
+		else{
+
 		  //usleep(100000);
 		  lock_motion = 0;
 		  show_dest = 1;
-	  }
+		}
+		}
 	  if(lock_motion && show_dest) {
 		  cout << "Base:\t " << pulse_base << "-> " << usbase << endl;
 		  cout << "x:\t " << pulse_x << "-> " << usx << endl;
@@ -301,20 +355,6 @@ void smoothMove() {
 		  show_dest = 0;
 	  }
 
-	  if( pulse_base < usbase )
-		  gpioServoBound(SERVO_BASE, pulse_base + SPEED);
-	  else if( pulse_base > usbase)
-		  gpioServoBound(SERVO_BASE, pulse_base - SPEED);
-
-	  if( pulse_x < usx )
-		  gpioServoBound(SERVO_A1, pulse_x + SPEED);
-	  else if( pulse_x > usx)
-		  gpioServoBound(SERVO_A1, pulse_x - SPEED);
-
-	  if( pulse_z < usz )
-		  gpioServoBound(SERVO_A2, pulse_z + SPEED);
-	  else if( pulse_z > usz)
-		  gpioServoBound(SERVO_A2, pulse_z - SPEED);
   }
 }
 
@@ -322,6 +362,7 @@ int servoControl(int sz) {
 	if(!centers_available) return -1;
 	for(int i=1; i<=sz; i++) {
 		cout << "Objeto " << i << " (" << centerscm[i].x << ", " << centerscm[i].y << ")\n";
+		dir = 0;
 		inverse_kinematics(centerscm[i].x, centerscm[i].y, 0, &usbase, &usx, &usz);
 		lock_motion = 1;
 		//Ligando a bobina com 30% da força
@@ -334,7 +375,8 @@ int servoControl(int sz) {
 		cout << "Objeto " << i << " resgatado.\n\n";
 		//Definindo a coordenada de volta
 		//usleep(2000000);
-		inverse_kinematics(8, 0, 8, &usbase, &usx, &usz); // Posicao do abrigo do objeto
+		dir = 1;
+		inverse_kinematics(-8, 0, 8, &usbase, &usx, &usz); // Posicao do abrigo do objeto
 		lock_motion = 1;
 		while(lock_motion);	
 		cout << "\tObjeto levado ao abrigo\n";
