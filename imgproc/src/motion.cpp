@@ -1,5 +1,6 @@
 #include <stdio.h>
 extern "C"{
+	#include "buttons.h"
 	#include "inv_kinematics.h"
 }
 #include <unistd.h>
@@ -48,6 +49,10 @@ int main(int argc, char* argv[]) {
 	double X, Y;				// Posicao instantanea do end effector
 
 	signal(SIGINT, signalTerm);
+
+	//Processo de inicializacao dos botoes e do polling
+	buttonsConfig();
+	initialisePolling(); //Polling inicializado
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
 	usx = degree_to_us(dg_x, SERVO_A1);

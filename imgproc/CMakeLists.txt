@@ -12,5 +12,6 @@ file(GLOB SOURCES "src/*.cpp")
 
 add_executable(motion ${SOURCES})
 add_library(inv_kinematics "src/inv_kinematics.c")
-target_link_libraries(motion ${OpenCV_LIBS} pthread pigpio m rt inv_kinematics)
+add_library(buttons "src/buttons.c")
+target_link_libraries(motion ${OpenCV_LIBS} pthread pigpio m rt inv_kinematics buttons)
 install(TARGETS motion DESTINATION bin)
