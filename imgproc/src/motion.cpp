@@ -2,6 +2,10 @@
 extern "C"{
 	#include "inv_kinematics.h"
 }
+extern "C"{
+	
+	#include "buttons.h"
+}
 #include <unistd.h>
 #include <iostream>
 #include <numeric>
@@ -11,6 +15,7 @@ extern "C"{
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/videoio.hpp>
+#include <csignal>
 
 // Constantes de processamento de imagens
 #define PERIM_CALIB 20.0 // Definir com ponto flutuante
@@ -23,10 +28,20 @@ double proportion = -1;		// Coeficiente de proporcao de centimetros/pixel
 
 int usbase = 0, usx = 0, usz = 0;
 int lock_motion = 0;
+int calib = 0;
+int ok_but = 0;
+int dir = 0;
 
-void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter);
+void findObjects(int calibrate, int cam, int minarea, int bgIter, int objIter, bool loop);
 void smoothMove();
 int servoControl(int sz);
+
+void signalTerm(int signum){
+	cout << "Programa sendo encerrado!\n";
+	gpioPWM(BOBINA,0);
+	gpioTerminate();
+	exit(signum);
+}
 
 int main(int argc, char* argv[]) {
 	if(argc < 4) {
@@ -38,6 +53,13 @@ int main(int argc, char* argv[]) {
 
 	double dg_x=90, dg_z=0, dg_base=180;	// Posicao inicial dos servos (graus)
 	double X, Y;				// Posicao instantanea do end effector
+
+	signal(SIGINT, signalTerm);
+
+	//Processo de inicializacao dos botoes e do polling
+	buttonsConfig();
+
+	thread polling(initialisePolling); //Polling inicializado
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
 	usx = degree_to_us(dg_x, SERVO_A1);
@@ -61,12 +83,16 @@ int main(int argc, char* argv[]) {
 	gpioServoBound(SERVO_A1, usx);
 	gpioServoBound(SERVO_A2, usz);
 
+	gpioSetPWMrange(BOBINA, 100);
+	gpioSetPWMfrequency(BOBINA, 100);
+
 	cout << "Servos inicializados.\n";
 
 	cout << "\t** Iniciando etapa de calibragem **\n\nSiga as orientações\n\n";
 
 	// Calibragem
-	findObjects(true, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	calib = 1;
+	findObjects(calib, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), false);
 	cout << "\n\n\t** Calibragem finalizada. Iniciando etapa \
 		 principal de reconhecimento de objetos. **\n\n";
 	// Thread de suavizacao de movimentos dos servomotores
@@ -74,12 +100,17 @@ int main(int argc, char* argv[]) {
 	// Thread de processamento de imagens
 
 	//loop infinito do reconhecimento de objeto
+	calib = 0;
 #ifdef	FELIPE
-	while(1)
-	findObjects(false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	while(1){
+
+		findObjects(calib, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), true);
+		calib = 0;
+	}
 #endif
 #ifdef	GABRIEL
-	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	calib = 0;
+	thread objectRecognition(findObjects, calib, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), true);
 	objectRecognition.join();
 #endif
 
@@ -89,7 +120,8 @@ int main(int argc, char* argv[]) {
 }
 
 
-void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) {
+void findObjects(int calibrate, int cam, int minarea, int bgIter, int objIter, bool loop) {
+
 	centerscm.clear();
 	vector<cv::Point> centers;
 	vector<vector<cv::Point>> contours;
@@ -132,8 +164,12 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 	
 	if(!calibrate)
 		cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
-	else
+	else{
+
 		cerr << "Posicione objetos de calibragem, de cores distintas do plano de fundo e\ncom perimetro de " << PERIM_CALIB << " cm.\n";
+		// Destivacao da calibracao ate que seja requisitado
+		
+	}
 	cv::imshow("Plano de fundo", fgMask);
 	int keyboard = cv::waitKey(0);
 	if(keyboard == 'q')
@@ -235,7 +271,12 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		centerscm.clear();
 		valid_contours = 0;
 		cout << endl << endl;
-	} while(!calibrate);
+
+		if((calib == 0) && (calibrate == 1))
+			calibrate = 0;
+		if(calib)
+			loop = false;
+	} while(loop);
 }
 
 void smoothMove() {
@@ -244,18 +285,69 @@ void smoothMove() {
   int pulse_z;
   int show_dest = 1;
 
-
-
   while(1) {
-	  usleep(10000);
+	  usleep(5000);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_A1);  
 	  pulse_z = gpioGetServoPulsewidth(SERVO_A2);
-	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_z == usz) ) {
-		  usleep(100000);
+		if (!dir){
+			if( !(pulse_base == usbase) ) {
+				if( pulse_base < usbase )
+					gpioServoBound(SERVO_BASE, pulse_base + SPEED);
+				else if( pulse_base > usbase)
+					gpioServoBound(SERVO_BASE, pulse_base - SPEED);
+			}
+			else if(!(pulse_x == usx)){
+				if( pulse_x < usx )
+					gpioServoBound(SERVO_A1, pulse_x + SPEED);
+				else if( pulse_x > usx)
+					gpioServoBound(SERVO_A1, pulse_x - SPEED);
+
+			}
+			else if(!(pulse_z == usz)){
+			if( pulse_z < usz )
+				gpioServoBound(SERVO_A2, pulse_z + SPEED);
+			else if( pulse_z > usz)
+				gpioServoBound(SERVO_A2, pulse_z - SPEED);
+			
+			}
+			else{
+
+				//usleep(100000);
+				lock_motion = 0;
+				show_dest = 1;
+			}
+
+		}
+		else{
+
+	  if( !(pulse_z == usz) ) {
+			if( pulse_z < usz )
+				gpioServoBound(SERVO_A2, pulse_z + SPEED);
+			else if( pulse_z > usz)
+				gpioServoBound(SERVO_A2, pulse_z - SPEED);
+	  }
+		else if(!(pulse_x == usx)){
+			if( pulse_x < usx )
+				gpioServoBound(SERVO_A1, pulse_x + SPEED);
+			else if( pulse_x > usx)
+				gpioServoBound(SERVO_A1, pulse_x - SPEED);
+
+		}
+		else if(!(pulse_base == usbase)){
+	  if( pulse_base < usbase )
+		  gpioServoBound(SERVO_BASE, pulse_base + SPEED);
+	  else if( pulse_base > usbase)
+		  gpioServoBound(SERVO_BASE, pulse_base - SPEED);
+		
+		}
+		else{
+
+		  //usleep(100000);
 		  lock_motion = 0;
 		  show_dest = 1;
-	  }
+		}
+		}
 	  if(lock_motion && show_dest) {
 		  cout << "Base:\t " << pulse_base << "-> " << usbase << endl;
 		  cout << "x:\t " << pulse_x << "-> " << usx << endl;
@@ -263,20 +355,6 @@ void smoothMove() {
 		  show_dest = 0;
 	  }
 
-	  if( pulse_base < usbase )
-		  gpioServoBound(SERVO_BASE, pulse_base + SPEED);
-	  else if( pulse_base > usbase)
-		  gpioServoBound(SERVO_BASE, pulse_base - SPEED);
-
-	  if( pulse_x < usx )
-		  gpioServoBound(SERVO_A1, pulse_x + SPEED);
-	  else if( pulse_x > usx)
-		  gpioServoBound(SERVO_A1, pulse_x - SPEED);
-
-	  if( pulse_z < usz )
-		  gpioServoBound(SERVO_A2, pulse_z + SPEED);
-	  else if( pulse_z > usz)
-		  gpioServoBound(SERVO_A2, pulse_z - SPEED);
   }
 }
 
@@ -284,12 +362,27 @@ int servoControl(int sz) {
 	if(!centers_available) return -1;
 	for(int i=1; i<=sz; i++) {
 		cout << "Objeto " << i << " (" << centerscm[i].x << ", " << centerscm[i].y << ")\n";
-		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usz);
+		dir = 0;
+		inverse_kinematics(centerscm[i].x, centerscm[i].y, 0, &usbase, &usx, &usz);
 		lock_motion = 1;
+		//Ligando a bobina com 30% da força
+		gpioPWM(BOBINA, 50);
+
 		cout << "\tResgatando objeto..." << lock_motion << "\n";
-		while(lock_motion) {
-		};
+
+		while(lock_motion);
+
 		cout << "Objeto " << i << " resgatado.\n\n";
+		//Definindo a coordenada de volta
+		//usleep(2000000);
+		dir = 1;
+		inverse_kinematics(-8, 0, 8, &usbase, &usx, &usz); // Posicao do abrigo do objeto
+		lock_motion = 1;
+		while(lock_motion);	
+		cout << "\tObjeto levado ao abrigo\n";
+		//Desliga a bobina
+		gpioPWM(BOBINA,0);
+		usleep(500000);
 	}
 	return 0;
 }
