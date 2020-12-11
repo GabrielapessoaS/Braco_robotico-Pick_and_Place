@@ -91,8 +91,8 @@ void inverse_kinematics(double x, double y, double z, int *usb, int *usx, int *u
 	xb = sqrt(x*x + y*y);
 	yb = sqrt(z*z + y*y + x*x - xb*xb);
 
-	theta1 = atan(yb/xb) + acos((xb*xb + yb*yb + a1*a1 - a2*a2)/(2*a1*sqrt(xb*xb + yb*yb)));
-	theta2 = theta1 - acos((xb*xb +yb*yb - a1*a1 - a2*a2) / (2.0*a1*a2));
+	theta1 = atan(yb/xb) + acos((xb*xb + yb*yb + d1*d1 - d2*d2)/(2*d1*sqrt(xb*xb + yb*yb)));
+	theta2 = theta1 - acos((xb*xb +yb*yb - d1*d1 - d2*d2) / (2.0*d1*d2));
 	theta3 =  atan2(y, x);
 
 	theta1 = 180.0*theta1/M_PI;

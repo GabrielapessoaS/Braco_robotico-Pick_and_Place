@@ -46,10 +46,10 @@
 
 #define SPEED 10
 
-#define a1 8.0
-#define a2 8.0
+#define d1 8.0
+#define d2 8.0
 
-#define MAX_LEN	(a1+a2)
+#define MAX_LEN	(d1+d2)
 #define MIN_LEN 1
 
 int gpioServoBound(int servo, int us);

@@ -40,7 +40,7 @@ void initialisePolling(){
   
 }
 
-
+// Esse botao realiza a calibracao da constante de proporcao
 void but1ISR(){
 
   if(gpioRead(BUT1) == 0){
@@ -51,6 +51,7 @@ void but1ISR(){
     }
     else{
       printf("Debouncing realizado. BUT1 pressionado!\n");
+      calib = 1;
     }
     
 
@@ -71,6 +72,7 @@ void but2ISR(){
     }
     else{
       printf("Debouncing realizado. BUT2 pressionado!\n");
+      ok_but = 1;
     }
     
 
