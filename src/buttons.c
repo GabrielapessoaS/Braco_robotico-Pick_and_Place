@@ -57,7 +57,7 @@ void but1ISR(){
 
   }
   else{
-    printf("Botao nao precionado\n");
+    printf("Botao nao pressionado\n");
   }
 
 
@@ -78,7 +78,7 @@ void but2ISR(){
 
   }
   else{
-    printf("Botao nao precionado\n");
+    printf("Botao nao pressionado\n");
   }
 
 }
@@ -98,7 +98,7 @@ void but3ISR(){
 
   }
   else{
-    printf("Botao nao precionado\n");
+    printf("Botao nao pressionado\n");
   }
 
 }
