@@ -11,6 +11,7 @@ extern "C"{
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/videoio.hpp>
+#include <csignal>
 
 // Constantes de processamento de imagens
 #define PERIM_CALIB 20.0 // Definir com ponto flutuante
@@ -28,6 +29,13 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter);
 void smoothMove();
 int servoControl(int sz);
 
+void signalTerm(int signum){
+	cout << "Programa sendo encerrado!\n";
+	gpioPWM(BOBINA,0);
+	gpioTerminate();
+	exit(signum);
+}
+
 int main(int argc, char* argv[]) {
 	if(argc < 4) {
 		cerr << "Uso: " << argv[0] << " id_camera sensibilidade iteracoes1 iteracoes2\n";
@@ -38,6 +46,8 @@ int main(int argc, char* argv[]) {
 
 	double dg_x=90, dg_z=0, dg_base=180;	// Posicao inicial dos servos (graus)
 	double X, Y;				// Posicao instantanea do end effector
+
+	signal(SIGINT, signalTerm);
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
 	usx = degree_to_us(dg_x, SERVO_A1);
@@ -60,6 +70,9 @@ int main(int argc, char* argv[]) {
 	gpioServoBound(SERVO_BASE, usbase);
 	gpioServoBound(SERVO_A1, usx);
 	gpioServoBound(SERVO_A2, usz);
+
+	gpioSetPWMrange(BOBINA, 100);
+	gpioSetPWMfrequency(BOBINA, 100);
 
 	cout << "Servos inicializados.\n";
 
@@ -252,7 +265,7 @@ void smoothMove() {
 	  pulse_x = gpioGetServoPulsewidth(SERVO_A1);  
 	  pulse_z = gpioGetServoPulsewidth(SERVO_A2);
 	  if( (pulse_base == usbase) && (pulse_x == usx) && (pulse_z == usz) ) {
-		  usleep(100000);
+		  //usleep(100000);
 		  lock_motion = 0;
 		  show_dest = 1;
 	  }
@@ -286,10 +299,24 @@ int servoControl(int sz) {
 		cout << "Objeto " << i << " (" << centerscm[i].x << ", " << centerscm[i].y << ")\n";
 		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usz);
 		lock_motion = 1;
+		//Ligando a bobina com 30% da força
+		gpioPWM(BOBINA, 50);
+
 		cout << "\tResgatando objeto..." << lock_motion << "\n";
-		while(lock_motion) {
-		};
+
+		while(lock_motion);
+
 		cout << "Objeto " << i << " resgatado.\n\n";
+		//Definindo a coordenada de volta
+		//usleep(2000000);
+		usbase = degree_to_us(180, SERVO_BASE);
+		usx = degree_to_us(90, SERVO_A1);
+		usz = degree_to_us(0, SERVO_A2);
+		lock_motion = 1;
+		while(lock_motion);	
+		cout << "\tObjeto levado ao abrigo\n";
+		//Desliga a bobina
+		gpioPWM(BOBINA,0);
 	}
 	return 0;
 }
