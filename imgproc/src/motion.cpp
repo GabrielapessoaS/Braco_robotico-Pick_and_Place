@@ -1,7 +1,10 @@
 #include <stdio.h>
 extern "C"{
-	#include "buttons.h"
 	#include "inv_kinematics.h"
+}
+extern "C"{
+	
+	#include "buttons.h"
 }
 #include <unistd.h>
 #include <iostream>
@@ -25,8 +28,9 @@ double proportion = -1;		// Coeficiente de proporcao de centimetros/pixel
 
 int usbase = 0, usx = 0, usz = 0;
 int lock_motion = 0;
+int calib = 0;
 
-void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter);
+void findObjects(int calibrate, int cam, int minarea, int bgIter, int objIter, bool loop);
 void smoothMove();
 int servoControl(int sz);
 
@@ -85,7 +89,8 @@ int main(int argc, char* argv[]) {
 	cout << "\t** Iniciando etapa de calibragem **\n\nSiga as orientações\n\n";
 
 	// Calibragem
-	findObjects(true, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	calib = 1;
+	findObjects(calib, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), false);
 	cout << "\n\n\t** Calibragem finalizada. Iniciando etapa \
 		 principal de reconhecimento de objetos. **\n\n";
 	// Thread de suavizacao de movimentos dos servomotores
@@ -94,11 +99,14 @@ int main(int argc, char* argv[]) {
 
 	//loop infinito do reconhecimento de objeto
 #ifdef	FELIPE
-	while(1)
-	findObjects(false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	while(1){
+
+		findObjects(calib, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), true);
+	}
 #endif
 #ifdef	GABRIEL
-	thread objectRecognition(findObjects, false, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+	calib = 0;
+	thread objectRecognition(findObjects, calib, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
 	objectRecognition.join();
 #endif
 
@@ -108,7 +116,8 @@ int main(int argc, char* argv[]) {
 }
 
 
-void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) {
+void findObjects(int calibrate, int cam, int minarea, int bgIter, int objIter, bool loop) {
+
 	centerscm.clear();
 	vector<cv::Point> centers;
 	vector<vector<cv::Point>> contours;
@@ -151,8 +160,12 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 	
 	if(!calibrate)
 		cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
-	else
+	else{
+
 		cerr << "Posicione objetos de calibragem, de cores distintas do plano de fundo e\ncom perimetro de " << PERIM_CALIB << " cm.\n";
+		// Destivacao da calibracao ate que seja requisitado
+		calib = 0;
+	}
 	cv::imshow("Plano de fundo", fgMask);
 	int keyboard = cv::waitKey(0);
 	if(keyboard == 'q')
@@ -254,7 +267,10 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 		centerscm.clear();
 		valid_contours = 0;
 		cout << endl << endl;
-	} while(!calibrate);
+
+		if(calib)
+			loop = false;
+	} while(loop);
 }
 
 void smoothMove() {

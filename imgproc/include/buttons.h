@@ -6,8 +6,8 @@
  */
 
 
-#ifndef _BUTTONS_H_
-#define _BUTTONS_H_
+#ifndef BUTTONS_H
+#define BUTTONS_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +21,7 @@
 #define BUT2 27
 #define BUT3 22
 
+extern int calib; 
 
 
 // Prototipo para as funcoes
