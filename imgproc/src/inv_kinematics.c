@@ -78,17 +78,21 @@ int degree_to_us(double degree, int servo){
 	return v;
 }
 
-void inverse_kinematics(double x, double y, int *usb, int *usx, int *usz){
+void inverse_kinematics(double x, double y, double z, int *usb, int *usx, int *usz){
 	double theta1, theta2, theta3;
-	double z =0;
+	double xb, yb;
 	printf("Cinematica inversa para (%lf, %lf, %lf)...\n", x,y, z);
 
-	if((sqrt(y*y + z*z) > MAX_LEN) || (sqrt(y*y + z*z) < MIN_LEN)) {
+	if((sqrt(x*x + y*y + z*z) > MAX_LEN) || (sqrt(x*x + y*y + z*z) < MIN_LEN)) {
 		printf("Ponto alem do alcance.\n");
 		return;
 	}
-	theta1 = atan(z/y) + acos((y*y + z*z + a1*a1 - a2*a2)/(2*a1*sqrt(y*y + z*z)));
-	theta2 = theta1 - acos((y*y +z*z - a1*a1 - a2*a2) / (2.0*a1*a2));
+
+	xb = sqrt(x*x + y*y);
+	yb = sqrt(z*z + y*y + x*x - xb*xb);
+
+	theta1 = atan(yb/xb) + acos((xb*xb + yb*yb + a1*a1 - a2*a2)/(2*a1*sqrt(xb*xb + yb*yb)));
+	theta2 = theta1 - acos((xb*xb +yb*yb - a1*a1 - a2*a2) / (2.0*a1*a2));
 	theta3 =  atan2(y, x);
 
 	theta1 = 180.0*theta1/M_PI;
@@ -103,6 +107,4 @@ void inverse_kinematics(double x, double y, int *usb, int *usx, int *usz){
 	*usx = degree_to_us(theta1, SERVO_A1);
 	*usz = degree_to_us(theta2, SERVO_A2);
 	*usb = degree_to_us(theta3, SERVO_BASE);
-
-	printf("Entre na funcao de cinematica inversa\n\n");
 }

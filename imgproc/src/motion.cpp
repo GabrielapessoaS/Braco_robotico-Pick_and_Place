@@ -152,7 +152,7 @@ void findObjects(bool calibrate, int cam, int minarea, int bgIter, int objIter) 
 	if(!calibrate)
 		cout << "Reconhecimento finalizado. Posicione os objetos e pressione ENTER.\n";
 	else
-		cerr << "Posicione objetos de calibragem, de cores distintas do plano de fundo e\ncom perimetro de " << PERIM_CALIB << " cm.\n";
+			cerr << "Posicione objetos de calibragem, de cores distintas do plano de fundo e\ncom perimetro de " << PERIM_CALIB << " cm.\n";
 	cv::imshow("Plano de fundo", fgMask);
 	int keyboard = cv::waitKey(0);
 	if(keyboard == 'q')
@@ -263,8 +263,6 @@ void smoothMove() {
   int pulse_z;
   int show_dest = 1;
 
-
-
   while(1) {
 	  usleep(10000);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
@@ -303,7 +301,7 @@ int servoControl(int sz) {
 	if(!centers_available) return -1;
 	for(int i=1; i<=sz; i++) {
 		cout << "Objeto " << i << " (" << centerscm[i].x << ", " << centerscm[i].y << ")\n";
-		inverse_kinematics(centerscm[i].x, centerscm[i].y, &usbase, &usx, &usz);
+		inverse_kinematics(centerscm[i].x, centerscm[i].y, 0, &usbase, &usx, &usz);
 		lock_motion = 1;
 		//Ligando a bobina com 30% da força
 		gpioPWM(BOBINA, 50);
@@ -315,9 +313,7 @@ int servoControl(int sz) {
 		cout << "Objeto " << i << " resgatado.\n\n";
 		//Definindo a coordenada de volta
 		//usleep(2000000);
-		usbase = degree_to_us(180, SERVO_BASE);
-		usx = degree_to_us(90, SERVO_A1);
-		usz = degree_to_us(0, SERVO_A2);
+		inverse_kinematics(8, 0, 8); // Posicao do abrigo do objeto
 		lock_motion = 1;
 		while(lock_motion);	
 		cout << "\tObjeto levado ao abrigo\n";

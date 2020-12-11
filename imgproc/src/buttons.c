@@ -1,7 +1,5 @@
 #include "buttons.h"
 
-
-
 void buttonsConfig(){
 
   if(gpioInitialise()<0){
