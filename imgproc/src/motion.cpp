@@ -52,7 +52,8 @@ int main(int argc, char* argv[]) {
 
 	//Processo de inicializacao dos botoes e do polling
 	buttonsConfig();
-	initialisePolling(); //Polling inicializado
+
+	thread polling(initialisePolling); //Polling inicializado
 
 	usbase = degree_to_us(dg_base, SERVO_BASE);
 	usx = degree_to_us(dg_x, SERVO_A1);

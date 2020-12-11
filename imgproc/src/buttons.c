@@ -35,6 +35,10 @@ void initialisePolling(){
   gpioSetISRFunc(BUT1, FALLING_EDGE, -1, but1ISR);
   gpioSetISRFunc(BUT2, FALLING_EDGE, -1, but2ISR);
   gpioSetISRFunc(BUT3, FALLING_EDGE, -1, but3ISR);
+
+  //Loop infinito aguardando algum evento
+  //
+  while(1);
   
 }
 
