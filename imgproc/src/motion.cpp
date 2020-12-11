@@ -29,6 +29,7 @@ double proportion = -1;		// Coeficiente de proporcao de centimetros/pixel
 int usbase = 0, usx = 0, usz = 0;
 int lock_motion = 0;
 int calib = 0;
+int ok_but = 0;
 
 void findObjects(int calibrate, int cam, int minarea, int bgIter, int objIter, bool loop);
 void smoothMove();

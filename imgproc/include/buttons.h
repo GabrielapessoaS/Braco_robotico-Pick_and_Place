@@ -22,6 +22,7 @@
 #define BUT3 22
 
 extern int calib; 
+extern int ok_but;
 
 
 // Prototipo para as funcoes

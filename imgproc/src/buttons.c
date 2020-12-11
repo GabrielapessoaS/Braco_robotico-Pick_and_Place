@@ -75,6 +75,7 @@ void but2ISR(){
     }
     else{
       printf("Debouncing realizado. BUT2 pressionado!\n");
+      ok_but = 1;
     }
     
 
