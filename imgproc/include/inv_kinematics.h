@@ -24,7 +24,7 @@
 #define MAX_X	1550
 #define EXP_X	(int)(-11.1111*degree + 1500)
 
-#define MIN_Z	1000
+#define MIN_Z	800
 #define MAX_Z	2500
 #define EXP_Z	(int)(10.7142*degree + 1800) 
 #endif

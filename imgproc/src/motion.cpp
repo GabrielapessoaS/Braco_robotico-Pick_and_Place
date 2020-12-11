@@ -99,10 +99,12 @@ int main(int argc, char* argv[]) {
 	// Thread de processamento de imagens
 
 	//loop infinito do reconhecimento de objeto
+	calib = 0;
 #ifdef	FELIPE
 	while(1){
 
 		findObjects(calib, atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), true);
+		calib = 0;
 	}
 #endif
 #ifdef	GABRIEL
@@ -165,7 +167,7 @@ void findObjects(int calibrate, int cam, int minarea, int bgIter, int objIter, b
 
 		cerr << "Posicione objetos de calibragem, de cores distintas do plano de fundo e\ncom perimetro de " << PERIM_CALIB << " cm.\n";
 		// Destivacao da calibracao ate que seja requisitado
-		calib = 0;
+		
 	}
 	cv::imshow("Plano de fundo", fgMask);
 	int keyboard = cv::waitKey(0);
@@ -269,6 +271,8 @@ void findObjects(int calibrate, int cam, int minarea, int bgIter, int objIter, b
 		valid_contours = 0;
 		cout << endl << endl;
 
+		if((calib == 0) && (calibrate == 1))
+			calibrate = 0;
 		if(calib)
 			loop = false;
 	} while(loop);
@@ -283,7 +287,7 @@ void smoothMove() {
 
 
   while(1) {
-	  usleep(10000);
+	  usleep(5000);
 	  pulse_base = gpioGetServoPulsewidth(SERVO_BASE);
 	  pulse_x = gpioGetServoPulsewidth(SERVO_A1);  
 	  pulse_z = gpioGetServoPulsewidth(SERVO_A2);
@@ -340,6 +344,7 @@ int servoControl(int sz) {
 		cout << "\tObjeto levado ao abrigo\n";
 		//Desliga a bobina
 		gpioPWM(BOBINA,0);
+		usleep(500000);
 	}
 	return 0;
 }
